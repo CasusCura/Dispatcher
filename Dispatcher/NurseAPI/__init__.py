@@ -1,4 +1,4 @@
-from Dispatcher.NurseAPI.nurserequesthandler import NurseRequestHandler
-from Dispatcher.NurseAPI.router import NurseRouter
+from dispatcher.nurseapi.nurserequesthandler import NurseRequestHandler
+from dispatcher.nurseapi.router import NurseRouter
 
 __all__ = ['NurseRequestHandler', 'NurseRouter']

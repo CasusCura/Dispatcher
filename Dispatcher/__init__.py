@@ -1,3 +1,3 @@
-from Dispatcher.simplerouter import SimpleRouter
-from Dispatcher.dispatcher import Dispatcher
-__all__ = ['Dispatcher', 'SimpleRouter']
+from dispatcher.simplerouter import SimpleRouter
+from dispatcher.dispatcher import dispatcher
+__all__ = ['dispatcher', 'SimpleRouter']

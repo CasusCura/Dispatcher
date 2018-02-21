@@ -1,7 +1,7 @@
 from tornado.web import RequestHandler
 
 
-class AdminPanelRequestHandler(RequestHandler):
+class adminpanelRequestHandler(RequestHandler):
     """docstring for PatientRequestHandler"""
     def get(self):
         self.clear()

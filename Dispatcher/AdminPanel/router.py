@@ -1,11 +1,11 @@
-from Dispatcher import SimpleRouter
-from Dispatcher.AdminPanel import AdminPanelRequestHandler
+from dispatcher import SimpleRouter
+from dispatcher.adminpanel import adminpanelRequestHandler
 
 
 class AdminRouter(SimpleRouter):
     """docstring for NurseRouter"""
     def __init__(self):
         routes = [
-            (r'/admin/request', AdminPanelRequestHandler)
+            (r'/admin/request', adminpanelRequestHandler)
         ]
         super(AdminRouter, self).__init__(routes)

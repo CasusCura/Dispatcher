@@ -1,5 +1,5 @@
-from Dispatcher import SimpleRouter
-from Dispatcher.PatientAPI import PatientRequestHandler
+from dispatcher import SimpleRouter
+from dispatcher.patientapi import PatientRequestHandler
 
 
 class PatientRouter(SimpleRouter):

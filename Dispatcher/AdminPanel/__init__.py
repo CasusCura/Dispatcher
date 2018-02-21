@@ -1,4 +1,4 @@
-from Dispatcher.AdminPanel.adminpanelhandler import AdminPanelRequestHandler
-from Dispatcher.AdminPanel.router import AdminRouter
+from dispatcher.adminpanel.adminpanelhandler import adminpanelRequestHandler
+from dispatcher.adminpanel.router import AdminRouter
 
-__all__ = ['AdminPanelRequestHandler', 'AdminRouter']
+__all__ = ['adminpanelRequestHandler', 'AdminRouter']
