@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Patient Devices</title>
+
+		<script type="text/javascript" src="res/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="res/datatables/datatables.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="res/datatables/datatables.min.css"></link>
+	</head>
+
+	<body>
+		<table id="deviceTable">
+<thead>
+			<tr>
+				<th> Device Id</th>
+				<th> Device Type</th>
+				<th> Device Status</th>
+				<th></th>
+			</tr>
+			<thead>
+		<tbody>
+			<tr>
+				<td>hi</td>
+				<td>hi</td>
+				<td>hi</td>
+				<td><a href="#" class="btn btn-primary">edit</a></td>
+			</tr>			
+			<tr>
+				<td>again</td>
+				<td>again</td>
+				<td>again</td>
+				<td><a href="#" class="btn btn-primary">edit</a></td>
+			</tr>
+			</tbody>
+		</table>
+		
+		<script type="text/javascript" >
+		var service = 'wherever this is going';
+		
+		$(document).ready(function(){
+		
+		var table = $('#deviceTable').DataTable();
+ 
+
+		
+		
+		
+			$.ajax({
+				type: "GET",
+				url: service + '/devices/',
+				data: "{}",
+				contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (data) {
+
+					$.each(data.Countries, function (i, item) {
+						table.row.add([
+						"devId","dev type","dev status","<a href=\"#\" class=\"btn btn-primary\">edit</a>"
+						]).draw( true );
+					});
+				
+				},
+				error: function (msg) {
+					alert(msg.responseText);
+					
+						table.row.add([
+						"devId","dev type","dev status","<a href=\"#\" class=\"btn btn-primary\">edit</a>"
+						]).draw( true );
+
+				
+				}
+			});
+		})
+		</script>
+		
+	</body>
+</html>
