@@ -1,8 +1,8 @@
 var service = 'wherever this is going';
-
+var table;
 $(document).ready(function(){
 
-	var table = $('#deviceTable').DataTable();
+	table = $('#deviceTable').DataTable();
  
 	$.ajax({
 		type: "GET",
@@ -22,13 +22,13 @@ $(document).ready(function(){
 			//alert(msg.responseText);
 
 			table.row.add([
-			"devId","dev type1","dev status","<a href=\"#\" class=\"btn btn-primary\">edit</a>"
+			"devId","dev type1","dev status","<a href=\"PatientDevEdit.html?devId=devId\" class=\"btn btn-primary\">edit</a>"
 			]).draw( true );
 			table.row.add([
-			"devId2","dev type2","dev status","<a href=\"#\" class=\"btn btn-primary\">edit</a>"
+			"devId2","dev type2","dev status","<a href=\"PatientDevEdit.html?devId=devId2\" class=\"btn btn-primary\">edit</a>"
 			]).draw( true );
 			table.row.add([
-			"devId3","dev type3","dev status","<a href=\"#\" class=\"btn btn-primary\">edit</a>"
+			"devId3","dev type3","dev status","<a href=\"PatientDevEdit.html?devId=devId3\" class=\"btn btn-primary\">edit</a>"
 			]).draw( true );
 
 					
@@ -46,3 +46,15 @@ $(document).ready(function(){
 		}
 	});
 })
+
+function filterTable(filter){
+
+	table.clear();
+	
+	//TODO make ajax call to get all devices which match the filter (see onLoad for example)
+	
+	//TODO add all new values to table
+	
+	table.draw();
+	alert(filter);
+}
