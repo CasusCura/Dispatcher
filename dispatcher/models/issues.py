@@ -2,7 +2,7 @@
 handle by a nurse."""
 from dispatcher.models.base import Base
 import enum
-
+import json
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum
@@ -26,18 +26,20 @@ class Issue(Base):
     patientdevice = Column(String(32), ForeignKey('devices.id'))
     requesttype = Column(String(32), ForeignKey('requesttypes.id'))
     first_issued = Column(DateTime(timezone=True), server_default=func.now())
-    time_updated = Column(DateTime(timezone=True), onupdate=func.now())
+    time_updated = Column(DateTime(timezone=True), server_default=func.now(),
+                          onupdate=func.now())
     status = Column(Enum(IssueStates), nullable=False)
     priority = Column(Integer, nullable=False)
 
     request = relationship('RequestType')
-    device = relationship('Device')
+    device = relationship('PatientDevice')
     responses = relationship('Response',
-                             order_by='desc(Response.eta)',
-                             foreign_keys='id')
+                             order_by='Response.last_eta',
+                             primaryjoin='Response.issueid==Issue.id')
 
     data = relationship('RequestData',
-                        order_by='desc(RequestData.timestamp)')
+                        order_by='RequestData.timestamp',
+                        primaryjoin='RequestData.issueid==Issue.id')
 
     def __init__(self, patientdeviceid: String, requesttype: String,
                  priority: int):
@@ -54,16 +56,24 @@ class Response(Base):
     this nurse will be able to take care of this issue."""
     __tablename__ = 'responses'
     id = Column(String(32), primary_key=True)
+    issueid = Column(String(32), ForeignKey('issues.id'))
     nursedevice = Column(String(32), ForeignKey('devices.id'))
     first_issued = Column(DateTime(timezone=True), server_default=func.now())
+    time_updated = Column(DateTime(timezone=True), server_default=func.now(),
+                          onupdate=func.now())
     data = Column(String)
     last_eta = Column(Integer, nullable=False)
 
-    def __init__(self, nursedeviceid: String, eta: int, data: Dict):
+    device = relationship('Device')
+    issue = relationship('Issue')
+
+    def __init__(self, nursedeviceid: String, eta: int, issueid: String,
+                 data: Dict):
         self.id = str(uuid.uuid4().hex).encode('ascii')
+        self.issueid = issueid
         self.nursedevice = nursedeviceid
         self.last_eta = eta
-        self.data = data
+        self.data = json.dumps(data)
 
 
 class RequestData(Base):
@@ -71,14 +81,16 @@ class RequestData(Base):
     format. This allows for future expandability of devices."""
     __tablename__ = 'requestdata'
     id = Column(String(32), primary_key=True)
-    patientdevice = Column(Integer, ForeignKey('devices.id'))
+    issueid = Column(String(32), ForeignKey('issues.id'))
+    patientdevice = Column(String(32), ForeignKey('devices.id'))
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     data = Column(String)
 
-    def __init__(self, patientdevice: int, data: Dict):
+    def __init__(self, patientdevice: String, issueid: String, data: Dict):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.patientdevice = patientdevice.id
-        self.data = data
+        self.issueid = issueid
+        self.patientdevice = patientdevice
+        self.data = json.dumps(data)
 
 
 class RequestType(Base):

@@ -7,7 +7,7 @@ from dispatcher import dispatcher
 # Define command line parameters
 define("port", default=8888, help="run on the given port", type=int)
 define("db",
-       default="sqlite://dispatcher-0.1.db",
+       default="sqlite://dispatcher-0.2.db",
        help="run with the given database file",
        type=str)
 
