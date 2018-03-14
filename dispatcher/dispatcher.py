@@ -3,7 +3,7 @@ from tornado.web import Application
 from dispatcher import SimpleRouter
 
 
-class dispatcher(Application):
+class Dispatcher(Application):
     """dispatcher tornado application object. Used for creating the dispatcher
     instance. """
     debug = True
