@@ -5,10 +5,12 @@
 		<script type="text/javascript" src="res/admin.js"></script>
 		<script type="text/javascript" src="res/datatables/datatables.min.js"></script>
 		<script async type="text/javascript" src="res/bulma.js"></script>
+		
 		<link rel="stylesheet" type="text/css" href="res/datatables/datatables.min.css"></link>
 		<link rel="stylesheet" type="text/css" href="res/bulma.css"></link>
 		<link rel="icon" type="image/png" href="favicon.ico" />
 	</head>
+	
 	<body>
 
 		<!-- START NAV -->
@@ -27,19 +29,14 @@
 							Patient Devices
 						</a>
 						<a class="navbar-item" href="admin.html">
-							Nurse Apps
-						</a>
-						<a class="navbar-item" href="admin.html">
-							Option 3
-						</a>
-						<a class="navbar-item" href="admin.html">
-							Option 4
+							Nurse Devices
 						</a>
 					</div>
 				</div>
 			</div>
 		</nav>
-		<!-- END NAV -->
+
+		<!-- The page -->
 		<div class="container">
 			<div class="columns">
 				<div class="column is-3">
@@ -56,8 +53,8 @@
 							Administration
 						</p>
 						<ul class="menu-list">
-							<li><a href="GenerateCreds.html">Generate Creds</a></li>
-							<li><a>Confirm Creds</a></li>
+							<li><a href="GenerateCreds.html">Generate Creds - remove</a></li>
+							<li><a>Confirm Creds - remove</a></li>
 							<li><a href="ManageDeviceTypes.html">Manage Device Types</a></li>
 							<li><a href="AddNewPatientDevice.html">Add New Patient Device</a></li>
 						</ul>
@@ -78,6 +75,138 @@
 						</tbody>
 					</table>
 				</div>
+			</div>
+		</div>
+
+	<!-- device edit modal -->
+		<div class="modal" id="DeviceEditModal">
+			<div class="modal-background" onClick="closeModal()"></div>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<p class="modal-card-title">Modal title</p>
+					<button class="delete" aria-label="close" onClick="updatePatientDev()"></button>
+				</header>
+				<section class="modal-card-body">
+					<div class="field">
+						<label class="label">Device Id</label>
+						<div class="control">
+							<input id="deviceId" class="input" type="text" >
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Device Type</label>
+						<div class="control">
+							<input id="deviceType" class="input" type="text" >
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Room</label>
+						<div class="control">
+							<input id="room" class="input" type="text" >
+						</div>
+					</div>
+					
+					<div class="field">
+					<label class="label">Status</label>
+						<div  class="select">
+							<select id="status">
+								<option>Active</option>
+								<option>Storage</option>
+								<option>Retired</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label">User Name</label>
+						<div class="control">
+							<input id="username" class="input" type="text" readonly>
+						</div>
+					</div>
+					<div class="field">
+						<label class="label">Password</label>
+						<div class="control">
+							<input id="password" class="input" type="text" readonly>
+						</div>
+					</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button" onClick="closeModal()">Cancel</button>
+				</footer>
+			</div>
+		</div>
+	
+	<!-- Add new patient device modal -->
+			<div class="modal" id="DeviceEditModal">
+			<div class="modal-background" onClick="closeModal()"></div>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<p class="modal-card-title">Modal title</p>
+					<button class="delete" aria-label="close" onClick="updatePatientDev()"></button>
+				</header>
+				<section class="modal-card-body">
+					<div class="field">
+					<label class="label">Device Type</label>
+						<div  class="select">
+							<select id="selectDeviceType">
+							</select>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label">Device Id</label>
+						<div class="control">
+							<input id="deviceId" class="input" type="text" >
+						</div>
+					</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button" onClick="closeModal()">Cancel</button>
+				</footer>
+			</div>
+		</div>
+
+
+	<!-- Manage device types modal -->
+		<div class="modal" id="DeviceEditModal">
+			<div class="modal-background" onClick="closeModal()"></div>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<p class="modal-card-title">Modal title</p>
+					<button class="delete" aria-label="close" onClick="updateDeviceType()"></button>
+				</header>
+				<section class="modal-card-body">
+					<div class="field">
+					<label class="label">Existing Device Types</label>
+						<div class="select">
+							<select id="selectDeviceType" onchange="deviceTypeSelectChange()">
+							<option>[Add a New Device Type]</option>
+							</select>
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Device Type</label>
+						<div class="control">
+							<input id="deviceType" class="input" type="text">
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Short Description</label>
+						<div class="control">
+							<input id="shortDescription" class="input" type="text">
+						</div>
+					</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button" onClick="closeModal()">Cancel</button>
+				</footer>
 			</div>
 		</div>
 	</body>
