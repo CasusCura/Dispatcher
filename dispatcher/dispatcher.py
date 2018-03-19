@@ -11,7 +11,7 @@ class Dispatcher(Application):
     def __init__(self, command_options, router: SimpleRouter):
         self.options = command_options
 
-        super(dispatcher, self).__init__(
+        super(Dispatcher, self).__init__(
             router._routes,
             debug=self.debug
         )

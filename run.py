@@ -1,13 +1,13 @@
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.options import define, options, parse_command_line
-from dispatcher import dispatcher
+from dispatcher import Dispatcher
 
 
 # Define command line parameters
 define("port", default=8888, help="run on the given port", type=int)
 define("db",
-       default="sqlite://dispatcher-0.2.db",
+       default="sqlite:///dispatcher-0.2.db",
        help="run with the given database file",
        type=str)
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         print(e)
         exit(1)
 
-    http_server = HTTPServer(dispatcher(options, app_router))
+    http_server = HTTPServer(Dispatcher(options, app_router))
     http_server.listen(options.port)
 
     print('dispatcher is running on localhost:%s' % options.port)

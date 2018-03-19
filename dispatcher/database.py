@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from dispatcher import models
 
 
-engine = create_engine('sqlite:////tmp/test.db', convert_unicode=True)
+engine = create_engine('sqlite:///:memory:', convert_unicode=True)
 
 
 def init_db():

@@ -1,0 +1,18 @@
+language: python
+python:
+  - "3.6"
+  - "3.6-dev"
+  - "3.7-dev"
+
+cache:
+  pip: true
+
+before_install:
+  - pip install pipenv
+
+install:
+  - pipenv install
+
+script:
+  - pipenv graph
+  - pytest -v
