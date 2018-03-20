@@ -1,6 +1,7 @@
 from dispatcher.models.users import Admin, User, Nurse
 from dispatcher.models.base import Base
 from dispatcher.models.issues import (Issue,
+                                      IssueStates,
                                       Response,
                                       RequestData,
                                       RequestType)

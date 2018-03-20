@@ -98,16 +98,16 @@ class RequestType(Base):
     of issue and potentially reprioritize the issues they attempt to solve."""
     __tablename__ = 'requesttypes'
     id = Column(String(32), primary_key=True)
-    deviceid = Column(Integer, nullable=False)
+    device_request_id = Column(String, nullable=False)
     devicetype = Column(String(32), ForeignKey('devicetypes.id'))
     name = Column(String(50), nullable=False)
     description = Column(String(200), nullable=False)
     priority = Column(Integer, nullable=False)
 
-    def __init__(self, id: int, name: String, description: String,
+    def __init__(self, id: String, name: String, description: String,
                  devicetype: String, priority: int):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.deviceid = id
+        self.device_request_id = id
         self.name = name
         self.description = description
         self.devicetype = devicetype

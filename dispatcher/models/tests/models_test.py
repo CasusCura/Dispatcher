@@ -1,5 +1,5 @@
-import unittest
-from dispatcher.database import init_db, get_session
+import unittest, os, os.path, sys, urllib
+from dispatcher.database import init_db
 from dispatcher.models import (Admin,
                                Issue,
                                Nurse,
@@ -10,28 +10,29 @@ from dispatcher.models import (Admin,
                                Response,
                                RequestData,
                                RequestType)
+from tornado_sqlalchemy import make_session_factory
 
-
-init_db()
+factory = make_session_factory('sqlite:///:memory:')
+init_db(factory)
 
 
 class TestModels(unittest.TestCase):
 
     def test_create_nurse_user(self):
         """Can create nurse."""
-        sess = get_session()
+        sess = factory.make_session()
         nurse = Nurse('alice', 'password', '3rd')
         sess.add(nurse)
         sess.commit()
         sess.close()
 
         # Testing assertion
-        sess = get_session()
+        sess = factory.make_session()
         t = sess.query(Nurse).filter(Nurse.username == 'alice')
         print([n.username for n in t.all()])
         sess.close()
         # Clean up
-        sess = get_session()
+        sess = factory.make_session()
         t = sess.query(Nurse).filter(Nurse.username == 'alice')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
@@ -39,19 +40,19 @@ class TestModels(unittest.TestCase):
 
     def test_create_admin_user(self):
         """Can create admin."""
-        sess = get_session()
+        sess = factory.make_session()
         a = Admin('Bocar', 'password', 'the doctor')
         sess.add(a)
         sess.commit()
         sess.close()
 
         # Testing assertion
-        sess = get_session()
+        sess = factory.make_session()
         t = sess.query(Admin).filter(Admin.username == 'Bocar')
         print([n.username for n in t.all()])
         sess.close()
         # Clean up
-        sess = get_session()
+        sess = factory.make_session()
         t = sess.query(Admin).filter(Admin.username == 'Bocar')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
@@ -59,20 +60,20 @@ class TestModels(unittest.TestCase):
 
     def test_create_nurse_device_type(self):
         """Create New Nurse Device Type."""
-        sess = get_session()
+        sess = factory.make_session()
         newnursedevt = NurseDeviceType('testdev', 'used to testing the code')
         sess.add(newnursedevt)
         sess.commit()
         sess.close()
 
         # Testing assertion
-        sess = get_session()
-        t = sess.query(NurseDeviceType).filter(NurseDeviceType.name ==
-                                               'testdev')
+        sess = factory.make_session()
+        t = sess.query(NurseDeviceType)\
+            .filter(NurseDeviceType.name == 'testdev')
         print([n.name for n in t.all()])
         # Clean up
-        t = sess.query(NurseDeviceType).filter(NurseDeviceType.name ==
-                                               'testdev')
+        t = sess.query(NurseDeviceType)\
+            .filter(NurseDeviceType.name == 'testdev')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
         sess.close()
@@ -80,7 +81,7 @@ class TestModels(unittest.TestCase):
     def test_create_nurse_device(self):
         """Create Nurse Device."""
         # Create new nurse device type
-        sess = get_session()
+        sess = factory.make_session()
         newnursedevt = NurseDeviceType('testdev', 'used to testing the code')
         sess.add(newnursedevt)
         # create the nurse dev instance
@@ -90,10 +91,10 @@ class TestModels(unittest.TestCase):
         sess.close()
 
         # Testing assertion
-        sess = get_session()
+        sess = factory.make_session()
         # test relationship from type
-        t = sess.query(NurseDeviceType).filter(NurseDeviceType.name ==
-                                               'testdev')
+        t = sess.query(NurseDeviceType)\
+            .filter(NurseDeviceType.name == 'testdev')
         print([n.name for n in t.all()])
         print([
             [(nd.id, nd.floor) for nd in ndevt.devices]
@@ -113,7 +114,7 @@ class TestModels(unittest.TestCase):
 
     def test_create_patient_device_type(self):
         """Create New Patient Device Type."""
-        sess = get_session()
+        sess = factory.make_session()
         newpatientdevt = PatientDeviceType('testpdev',
                                            'used to testing the code')
         sess.add(newpatientdevt)
@@ -121,15 +122,15 @@ class TestModels(unittest.TestCase):
         sess.close()
 
         # Testing assertion
-        sess = get_session()
-        t = sess.query(PatientDeviceType).filter(PatientDeviceType.name ==
-                                                 'testpdev')
+        sess = factory.make_session()
+        t = sess.query(PatientDeviceType)\
+            .filter(PatientDeviceType.name == 'testpdev')
         print([n.name for n in t.all()])
         sess.close()
         # Clean up
-        sess = get_session()
-        t = sess.query(PatientDeviceType).filter(PatientDeviceType.name ==
-                                                 'testpdev')
+        sess = factory.make_session()
+        t = sess.query(PatientDeviceType)\
+            .filter(PatientDeviceType.name == 'testpdev')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
         sess.close()
@@ -137,7 +138,7 @@ class TestModels(unittest.TestCase):
     def test_create_patient_device_type_requests(self):
         # Add requests to patient device type
         # Create New Patient Device Type
-        sess = get_session()
+        sess = factory.make_session()
         newpatientdevt = PatientDeviceType('testpdev',
                                            'used to testing the code')
         sess.add(newpatientdevt)
@@ -162,9 +163,9 @@ class TestModels(unittest.TestCase):
 
         # Testing assertion
         # Test relationship
-        sess = get_session()
-        t = sess.query(PatientDeviceType).filter(PatientDeviceType.name ==
-                                                 'testpdev')
+        sess = factory.make_session()
+        t = sess.query(PatientDeviceType)\
+            .filter(PatientDeviceType.name == 'testpdev')
         pds = t.all()
         print([[rt.name for rt in pd.requesttypes] for pd in pds])
         # test look up based on device
@@ -173,8 +174,9 @@ class TestModels(unittest.TestCase):
         print([rt.name for rt in r])
         # test look up based on device type and device request id
         testp = pds[0]
-        r = sess.query(RequestType).filter(PatientDeviceType.id == testp.id,
-                                           RequestType.deviceid == 2)
+        r = sess.query(RequestType)\
+            .filter(PatientDeviceType.id == testp.id,
+                    RequestType.device_request_id == 2)
         print([rt.name for rt in r])
         # Clean up
         t = sess.query(PatientDeviceType).filter(PatientDeviceType.name ==
@@ -187,7 +189,7 @@ class TestModels(unittest.TestCase):
     def test_create_patient_device(self):
         """Create new patient device."""
         # Create New Patient Device Type
-        sess = get_session()
+        sess = factory.make_session()
         newpatientdevt = PatientDeviceType('testptdev',
                                            'used to testing the code')
         sess.add(newpatientdevt)
@@ -198,23 +200,23 @@ class TestModels(unittest.TestCase):
         sess.close()
 
         # Testing assertion
-        sess = get_session()
+        sess = factory.make_session()
         # test relationship from type
-        t = sess.query(PatientDeviceType).filter(PatientDeviceType.name ==
-                                                 'testptdev')
+        t = sess.query(PatientDeviceType)\
+            .filter(PatientDeviceType.name == 'testptdev')
         print([pdt.name for pdt in t.all()])
         pdevt = t.first()
         print([(pd.id, pd.location) for pd in pdevt.devices])
         # test retrival by location
-        t = sess.query(PatientDevice).filter(PatientDevice.location ==
-                                             'room:501')
+        t = sess.query(PatientDevice)\
+            .filter(PatientDevice.location == 'room:501')
         print([(pd.id, pd.location) for pd in t.all()])
         # Clean up
-        t = sess.query(PatientDevice).filter(PatientDevice.location ==
-                                             'room:501')
+        t = sess.query(PatientDevice)\
+            .filter(PatientDevice.location == 'room:501')
         print([sess.delete(pd) for pd in t.all()])
-        t = sess.query(PatientDeviceType).filter(PatientDeviceType.name ==
-                                                 'testptdev')
+        t = sess.query(PatientDeviceType)\
+            .filter(PatientDeviceType.name == 'testptdev')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
         sess.close()
@@ -222,7 +224,7 @@ class TestModels(unittest.TestCase):
     def test_create_issue(self):
         """Create new Issue."""
         # Create New Patient Device Type
-        sess = get_session()
+        sess = factory.make_session()
         newpatientdevt = PatientDeviceType('testpdevt',
                                            'used to testing the code')
         sess.add(newpatientdevt)
@@ -252,7 +254,7 @@ class TestModels(unittest.TestCase):
         sess.close()
 
         # Testing assertion
-        sess = get_session()
+        sess = factory.make_session()
         # test retrieval of issue
         t = sess.query(Issue).all()
         print([(i.request.name, i.first_issued) for i in t])
@@ -272,20 +274,20 @@ class TestModels(unittest.TestCase):
     def test_create_responses(self):
         """Create new Responses."""
         # Create New Patient Device Type
-        sess = get_session()
+        sess = factory.make_session()
         newpatientdevt = PatientDeviceType('testpdevt',
                                            'used to testing the code')
         sess.add(newpatientdevt)
         # Create new requests for this new device
         pdid = newpatientdevt.id
         id = 0
-        newpreq1 = RequestType(1,
+        newpreq1 = RequestType('ONE',
                                'testone',
                                'used to testing the code',
                                pdid,
                                0)
         id += 1
-        newpreq2 = RequestType(2,
+        newpreq2 = RequestType('TWO',
                                'testtwo',
                                'used to testing the code',
                                pdid,
@@ -307,15 +309,15 @@ class TestModels(unittest.TestCase):
         nursedev2 = NurseDevice(nursedevt.id, '3rd floor')
         sess.add(nursedev2)
         # Create Responses
-        response1 = Response(nursedev1.id, 4, issue.id, '{\'data\':\'\'}')
+        response1 = Response(nursedev1.id, 4, issue.id, {'data': '', })
         sess.add(response1)
-        response2 = Response(nursedev2.id, 6, issue.id, '{\'data\':\'\'}')
+        response2 = Response(nursedev2.id, 6, issue.id, {'data': '', })
         sess.add(response2)
         sess.commit()
         sess.close()
 
         # Testing assertion
-        sess = get_session()
+        sess = factory.make_session()
         # retrieval of responses
         t = sess.query(Response).all()
         print([(r.id, r.first_issued, r.last_eta) for r in t])
@@ -345,7 +347,7 @@ class TestModels(unittest.TestCase):
     def test_create_requestdata(self):
         """Create new Request Data."""
         # Create New Patient Device Type
-        sess = get_session()
+        sess = factory.make_session()
         newpatientdevt = PatientDeviceType('testpdevt',
                                            'used to testing the code')
         sess.add(newpatientdevt)
@@ -382,7 +384,7 @@ class TestModels(unittest.TestCase):
         sess.close()
 
         # Testing assertion
-        sess = get_session()
+        sess = factory.make_session()
         # retrieval of responses
         t = sess.query(RequestData)
         print([(r.id, r.timestamp, r.data) for r in t.all()])

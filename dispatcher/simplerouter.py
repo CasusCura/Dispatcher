@@ -13,18 +13,18 @@ class SimpleRouter(object):
     module of the dispatcher."""
 
     def __init__(self, routes: Route_list):
-        self._routes = routes
+        self.routes = routes
 
     def append(self, router) -> bool:
         """Appends a router to self if the router doesn't have any duplicate
         endpoints. If there its a duplicate a KeyError is raised."""
-        urls = [route[0] for route in self._routes]
+        urls = [route[0] for route in self.routes]
 
         try:
-            for route in router._routes:
+            for route in router.routes:
                 if route[0] in urls:
                     raise KeyError('Urls endpoint Already defined')
-            self._routes = self._routes + router._routes
+            self.routes = self.routes + router.routes
             return True
         except KeyError:
             pass

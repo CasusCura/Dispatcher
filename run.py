@@ -1,19 +1,29 @@
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
-from tornado.options import define, options, parse_command_line
+from tornado.options import (options,
+                             parse_command_line,
+                             parse_config_file)
+import os
 from dispatcher import Dispatcher
+from dispatcher import configs
 
 
-# Define command line parameters
-define("port", default=8888, help="run on the given port", type=int)
-define("db",
-       default="sqlite:///dispatcher-0.2.db",
-       help="run with the given database file",
-       type=str)
+def create_router():
+    from dispatcher.patientapi import PatientRouter
+    app_router = PatientRouter()
+    from dispatcher.nurseapi import NurseRouter
+    app_router.append(NurseRouter())
+    from dispatcher.adminpanel import AdminRouter
+    app_router.append(AdminRouter())
+    return app_router
 
 
 if __name__ == '__main__':
     """Serves as the main entry point to launch the webservice."""
+    if options.mode is 'test':
+        parse_config_file(os.path.join('.', 'config', 'testconfig.py'))
+    else:
+        parse_config_file(os.path.join('.', 'config', 'devconfig.py'))
     parse_command_line()
 
     from tornado_sqlalchemy import make_session_factory
@@ -22,18 +32,16 @@ if __name__ == '__main__':
     # Assemble the tornado application with its submodules
     app_router = None
     try:
-        from dispatcher.patientapi import PatientRouter
-        app_router = PatientRouter()
-        from dispatcher.nurseapi import NurseRouter
-        app_router.append(NurseRouter())
-        from dispatcher.adminpanel import AdminRouter
-        app_router.append(AdminRouter())
-
+        app_router = create_router()
     except KeyError as e:
         print(e)
         exit(1)
 
-    http_server = HTTPServer(Dispatcher(options, app_router))
+    http_server = HTTPServer(
+        Dispatcher(
+            options,
+            app_router,
+            session_factory=factory))
     http_server.listen(options.port)
 
     print('dispatcher is running on localhost:%s' % options.port)
