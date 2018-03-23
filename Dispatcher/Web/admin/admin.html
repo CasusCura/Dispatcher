@@ -45,18 +45,18 @@
 							Patient Devices
 						</p>
 						<ul class="menu-list">
-							<li><a id="inUse" class="is-active" onclick="filterTable('inUse')">In Use</a></li>
-							<li><a id="inStorage" onclick="filterTable('inUse')">In Storage</a></li>
-							<li><a id="activeAlerts" onclick="filterTable('inUse')">Active Alerts</a></li>
+							<li><a id="ALL" class="is-active" onclick="filterTable('ALL')">All</a></li>
+							<li><a id="ACTIVE" onclick="filterTable('ACTIVE')">Active</a></li>
+							<li><a id="INACTIVE" onclick="filterTable('INACTIVE')">Inactive</a></li>
+							<li><a id="DEACTIVATED" onclick="filterTable('DEACTIVATED')">Deactivated</a></li>
+							<li><a id="RETIRED" onclick="filterTable('RETIRED')">Retired</a></li>
 						</ul>
 						<p class="menu-label">
 							Administration
 						</p>
 						<ul class="menu-list">
-							<li><a href="GenerateCreds.html">Generate Creds - remove</a></li>
-							<li><a>Confirm Creds - remove</a></li>
-							<li><a href="ManageDeviceTypes.html">Manage Device Types</a></li>
-							<li><a href="AddNewPatientDevice.html">Add New Patient Device</a></li>
+							<li><a href="#" onclick="openManageDeviceTypeModal()">Manage Device Types</a></li>
+							<li><a href="#" onClick="openAddDeviceModal()">Add New Patient Device</a></li>
 						</ul>
 					
 					</aside>
@@ -68,7 +68,7 @@
 								<th> Device Id</th>
 								<th> Device Type</th>
 								<th> Device Status</th>
-								<th></th>
+								<th> Device Location</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -84,27 +84,27 @@
 			<div class="modal-card">
 				<header class="modal-card-head">
 					<p class="modal-card-title">Modal title</p>
-					<button class="delete" aria-label="close" onClick="updatePatientDev()"></button>
+					<button class="delete" aria-label="close" onClick="closeModal()"></button>
 				</header>
 				<section class="modal-card-body">
 					<div class="field">
 						<label class="label">Device Id</label>
 						<div class="control">
-							<input id="deviceId" class="input" type="text" >
+							<input id="id" class="input" type="text" >
 						</div>
 					</div>
 					
 					<div class="field">
 						<label class="label">Device Type</label>
 						<div class="control">
-							<input id="deviceType" class="input" type="text" >
+							<input id="devicetype" class="input" type="text" >
 						</div>
 					</div>
 					
 					<div class="field">
-						<label class="label">Room</label>
+						<label class="label">Location</label>
 						<div class="control">
-							<input id="room" class="input" type="text" >
+							<input id="location" class="input" type="text" >
 						</div>
 					</div>
 					
@@ -112,9 +112,10 @@
 					<label class="label">Status</label>
 						<div  class="select">
 							<select id="status">
-								<option>Active</option>
-								<option>Storage</option>
-								<option>Retired</option>
+								<option value="ACTIVE">Active</option>
+								<option value="INACTIVE">Inactive</option>
+								<option value="DEACTIVATED">Deactivated</option>
+								<option value="RETIRED">Retired</option>
 							</select>
 						</div>
 					</div>
@@ -140,18 +141,18 @@
 		</div>
 	
 	<!-- Add new patient device modal -->
-			<div class="modal" id="DeviceEditModal">
+			<div class="modal" id="addDeviceModal">
 			<div class="modal-background" onClick="closeModal()"></div>
 			<div class="modal-card">
 				<header class="modal-card-head">
 					<p class="modal-card-title">Modal title</p>
-					<button class="delete" aria-label="close" onClick="updatePatientDev()"></button>
+					<button class="delete" aria-label="close" onClick="closeModal()"></button>
 				</header>
 				<section class="modal-card-body">
 					<div class="field">
 					<label class="label">Device Type</label>
 						<div  class="select">
-							<select id="selectDeviceType">
+							<select id="selectAddNewDeviceType">
 							</select>
 						</div>
 					</div>
@@ -164,7 +165,7 @@
 					</div>
 				</section>
 				<footer class="modal-card-foot">
-					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button is-success" onClick="addNewPatientDevice()">Save changes</button>
 					<button class="button" onClick="closeModal()">Cancel</button>
 				</footer>
 			</div>
@@ -172,18 +173,18 @@
 
 
 	<!-- Manage device types modal -->
-		<div class="modal" id="DeviceEditModal">
+		<div class="modal" id="manageDeviceTypesModal">
 			<div class="modal-background" onClick="closeModal()"></div>
 			<div class="modal-card">
 				<header class="modal-card-head">
 					<p class="modal-card-title">Modal title</p>
-					<button class="delete" aria-label="close" onClick="updateDeviceType()"></button>
+					<button class="delete" aria-label="close" onClick="closeModal()"></button>
 				</header>
 				<section class="modal-card-body">
 					<div class="field">
 					<label class="label">Existing Device Types</label>
 						<div class="select">
-							<select id="selectDeviceType" onchange="deviceTypeSelectChange()">
+							<select id="selectManageDeviceTypes" onchange="deviceTypeSelectChange()">
 							<option>[Add a New Device Type]</option>
 							</select>
 						</div>
@@ -204,7 +205,7 @@
 					</div>
 				</section>
 				<footer class="modal-card-foot">
-					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button is-success" onClick="updateDeviceType()">Save changes</button>
 					<button class="button" onClick="closeModal()">Cancel</button>
 				</footer>
 			</div>
