@@ -277,5 +277,6 @@ function deviceTypeSelectChange(){
 }
 
 function addNewPatientDevice(){
-	
+	//Implement it
+	closeModal();
 }
