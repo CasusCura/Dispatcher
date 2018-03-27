@@ -354,7 +354,7 @@ function updateAlertType(){
 	var description = document.getElementById("alertShortDescription").value;
 	var alertType = document.getElementById("alertType").value;
 	var alertDetails = '{"id":"' + alertId +'", "name":"' + alertType + '", "priority":"'+priority+'","description":"'+ description+'}';
-	
+
 		$.ajax({
 		type: "POST",
 		url: 'alerttype/',
