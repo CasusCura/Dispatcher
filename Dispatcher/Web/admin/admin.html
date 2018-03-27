@@ -57,6 +57,7 @@
 						<ul class="menu-list">
 							<li><a href="#" onclick="openManageDeviceTypeModal()">Manage Device Types</a></li>
 							<li><a href="#" onClick="openAddDeviceModal()">Add New Patient Device</a></li>
+							<li><a href="#" onClick="openAlertTypesModal()">Manage Alert Types</a></li>
 						</ul>
 					
 					</aside>
@@ -206,6 +207,60 @@
 				</section>
 				<footer class="modal-card-foot">
 					<button class="button is-success" onClick="updateDeviceType()">Save changes</button>
+					<button class="button" onClick="closeModal()">Cancel</button>
+				</footer>
+			</div>
+		</div>
+		
+		
+	<!-- Manage alert types modal -->
+		<div class="modal" id="editAlertTypesModal">
+			<div class="modal-background" onClick="closeModal()"></div>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<p class="modal-card-title">Modal title</p>
+					<button class="delete" aria-label="close" onClick="closeModal()"></button>
+				</header>
+				<section class="modal-card-body">
+					<div class="field">
+					<label class="label">Existing Alert Types</label>
+						<div class="select">
+							<select id="selectAlertTypes" onchange="alertTypeSelectChange()">
+							<option>[Add a New Alert Type]</option>
+							</select>
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Alert Type</label>
+						<div class="control">
+							<input id="alertType" class="input" type="text">
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Alert Id</label>
+						<div class="control">
+							<input id="alertId" class="input" type="text" readonly>
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Alert Priority</label>
+						<div class="control">
+							<input id="alertPriority" class="input" type="number">
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Short Description</label>
+						<div class="control">
+							<input id="alertShortDescription" class="input" type="text">
+						</div>
+					</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-success" onClick="updateAlertType()">Save changes</button>
 					<button class="button" onClick="closeModal()">Cancel</button>
 				</footer>
 			</div>
