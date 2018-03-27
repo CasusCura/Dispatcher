@@ -49,6 +49,18 @@ class Issue(Base):
         self.priority = priority
         self.status = IssueStates.PENDING
 
+    def __str__(self):
+        return self.as_json()
+
+    def as_json(self, **kwargs):
+        return json.dump({
+            'id': self.id,
+            'patientdevice': self.devicetype,
+            'requesttype': self.description,
+            'priority': self.discriminator,
+            'status': self.status,
+        })
+
 
 class Response(Base):
     """Represents a nurse saying they will tend to this issue in a given amount
@@ -75,6 +87,20 @@ class Response(Base):
         self.last_eta = eta
         self.data = json.dumps(data)
 
+    def __str__(self):
+        return self.as_json()
+
+    def as_json(self, **kwargs):
+        return json.dump({
+            'id': self.id,
+            'issueid': self.devicetype,
+            'nursedevice': self.description,
+            'first_issued': self.discriminator,
+            'time_updated': self.status,
+            'last_eta': self.last_eta,
+            'data': self.data
+        })
+
 
 class RequestData(Base):
     """Allows devices to send data, or update fragments to an issue of any
@@ -91,6 +117,19 @@ class RequestData(Base):
         self.issueid = issueid
         self.patientdevice = patientdevice
         self.data = json.dumps(data)
+
+    def __str__(self):
+        return self.as_json()
+
+    def as_json(self, **kwargs):
+        return json.dump({
+            'id': self.id,
+            'issueid': self.devicetype,
+            'nursedevice': self.description,
+            'patientdevice': self.discriminator,
+            'timestamp': self.status,
+            'data': self.data
+        })
 
 
 class RequestType(Base):
@@ -112,3 +151,16 @@ class RequestType(Base):
         self.description = description
         self.devicetype = devicetype
         self.priority = priority
+
+    def __str__(self):
+        return self.as_json()
+
+    def as_json(self, **kwargs):
+        return json.dump({
+            'id': self.id,
+            'device_request_id': self.device_request_id,
+            'devicetype': self.devicetype,
+            'name': self.name,
+            'description': self.description,
+            'priority': self.priority,
+        })

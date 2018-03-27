@@ -5,6 +5,7 @@ from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum
 import uuid
+import json
 
 
 class DeviceStatus(enum.Enum):
@@ -24,6 +25,14 @@ class Device(Base):
     used_by = Column(String(10))
     __mapper_args__ = {'polymorphic_on': used_by}
 
+    def as_json(self, **kwargs):
+        return json.dump({
+            'id': id,
+            'devicetype': self.devicetype,
+            'status': self.status,
+            'used_by': self.used_by,
+            **kwargs})
+
 
 class PatientDevice(Device):
     """Represents an individual patient device. This is associated with one or
@@ -40,6 +49,10 @@ class PatientDevice(Device):
         self.status = DeviceStatus.INACTIVE
         self.location = location
 
+    def as_json(self):
+        super(PatientDevice, self)\
+            .as_json(location=self.location)
+
 
 class NurseDevice(Device):
     floor = Column(String(50))
@@ -55,17 +68,29 @@ class NurseDevice(Device):
         self.status = DeviceStatus.INACTIVE
         self.floor = floor
 
+    def as_json(self):
+        super(NurseDevice, self)\
+            .as_json(floor=self.floor)
+
 
 class DeviceType(Base):
     __tablename__ = 'devicetypes'
     id = Column(String(32), primary_key=True)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=False)
+    product_name = Column(String, nullable=False)
+    product_description = Column(String, nullable=False)
     discriminator = Column('devicetype', String(50))
     devices = relationship('Device',
                            primaryjoin='DeviceType.id == Device.devicetype',
                            foreign_keys='Device.devicetype')
     __mapper_args__ = {'polymorphic_on': discriminator}
+
+    def as_json(self, **kwargs):
+        return json.dump({
+            'id': id,
+            'product_name': self.devicetype,
+            'product_description': self.description,
+            'devicetype': self.discriminator,
+            **kwargs})
 
 
 class NurseDeviceType(DeviceType):
