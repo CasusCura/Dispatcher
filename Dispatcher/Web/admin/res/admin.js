@@ -4,7 +4,7 @@ var table;
 $(document).ready(function(){
 	table = $('#deviceTable').DataTable();
 	
-	//Populate the table of all devices (default to 'isUse')
+	//Populate the table of all devices (default to 'ACTIVE')
 	filterTable("ALL");
 	
 	//Make the table click-able
@@ -14,7 +14,6 @@ $(document).ready(function(){
 		} else {
 			table.$('tr.selected').removeClass('selected');
 			$(this).addClass('selected');
-			console.log( table.row( this ).data()[0] );
 			openDeviceModal(table.row( this ).data()[0]);
 		}
 	});
@@ -35,6 +34,12 @@ function filterTable(filter){
 
 	table.clear();
 
+	if(filter=="ALL"){
+		filter = "";
+	}else{
+		filter="event.id";
+	}
+	
 	$.ajax({
 		type: "GET",
 		url: service+'/devices/',
@@ -42,11 +47,15 @@ function filterTable(filter){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			//TODO Duplicate error block here
+			$.each(data.deviceArray, function (index, device) {
+				table.row.add([
+					device.id, device.devicetype, device.status, device.location
+				]);
+			});
 		},
 		error: function (msg) {
 			
-			//Temp JSON
+			//TODO rm -rf & add notify user
 			msg='{ "deviceArray":[{"id":"dev1","devicetype":"autoFallDetection","status":"active","location":"Narnia"},{"id":"dev12","devicetype":"ManualFallDetection","status":"active","location":"Mordor"}]}';
 			var jsonMSG=JSON.parse(msg);
 			$.each(jsonMSG.deviceArray, function (deviceArray, device) {
@@ -54,7 +63,6 @@ function filterTable(filter){
 					device.id, device.devicetype, device.status, device.location
 				]);
 			});
-			table.draw();
 		}
 	});
 	table.draw();
@@ -65,7 +73,7 @@ function populateDeviceEditDialog(devId){
 	
 	$.ajax({
 		type: "GET",
-		url: 'devices/',
+		url: 'device/',
 		data: "id=" + devId,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -88,8 +96,7 @@ function populateDeviceEditDialog(devId){
 
 //POST updated details of a device to the service (or add a new device)
 function updatePatientDev(){
-	alert("DING");
-	var deviceDetails = "{}";
+	var deviceDetails = '{"id":"'+document.getElementById("id").value+'", "status":"'+ document.getElementById("status").value+'","location":"'+document.getElementById("location").value+'"}';
 	
 		$.ajax({
 		type: "POST",
@@ -101,25 +108,13 @@ function updatePatientDev(){
 			alert("success");
 		},
 		error: function (msg) {
+			alert(deviceDetails);
 		}
 	});
 	
 	//Refresh the page
 	location.href = service;
 }	
-
-//TODO rm?
-function getQueryVariable(variable){
-	var query = window.location.search.substring(1);
-	var vars = query.split("&");
-	for (var i=0;i<vars.length;i++) {
-		var pair = vars[i].split("=");
-		if(pair[0] == variable){
-			return pair[1];
-		}
-	}
-	return(false);
-}
 
 //Opens the modal for editing a device's details, after populating its fields
 function openDeviceModal(devId){
@@ -137,6 +132,12 @@ function openAddDeviceModal(){
 	document.getElementById("addDeviceModal").className = "modal is-active";
 }
 
+
+function openAlertTypesModal(){
+	populateAlertTypeSelect();
+	document.getElementById("editAlertTypesModal").className = "modal is-active";
+}
+
 //Close any open modal dialog
 function closeModal(){
 	var target=event.currentTarget;
@@ -148,7 +149,7 @@ function closeModal(){
 	target.className = "modal";
 }
 
-//Send either a new device type or an update to an existing device
+//Send a new device type/update existing
 //type to the service
 function updateDeviceType(){
 	var modalTarget = event.currentTarget;
@@ -168,12 +169,12 @@ function updateDeviceType(){
 	
 	$.ajax({
 		type: "POST",
-		url: 'devices/',
+		url: 'devicetypes/',
 		data: typeDetails,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			alert("hi");
+
 		},
 		error: function (msg) {
 			alert("nope");
@@ -192,8 +193,8 @@ function populateManageDeviceTypeSelect(){
 	
 	$.ajax({
 		type: "GET",
-		url: 'devices/',
-		data: "{}",
+		url: 'devicetypes/',
+		data: "",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
@@ -215,6 +216,38 @@ function populateManageDeviceTypeSelect(){
 	});
 }
 
+function populateAlertTypeSelect(){
+		var deviceTypeOptions = document.getElementById("selectAlertTypes").options;
+
+	while(deviceTypeOptions.length > 1){
+		deviceTypeOptions[1].remove();
+	}
+	
+	$.ajax({
+		type: "GET",
+		url: 'alerttypes/',
+		data: "",
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function (data) {
+			alert("hi");
+		},
+		error: function (msg) {
+			//Temp JSON
+			msg='{"alertypes":[{"name":"I haz fallen","id":"1234"}, {"name":"and cant get up","id":"5678"}]}';
+			var jsonMSG=JSON.parse(msg);
+			$.each(jsonMSG, function (k, v) {
+				$.each(v, function (num, alertType){
+					var option = document.createElement("option");
+					option.value=alertType.id;
+					option.innerHTML=alertType.name;
+					document.getElementById("selectAlertTypes").appendChild(option);
+				});
+			});
+		}
+	});
+}
+
 function populateAddDeviceTypeSelect(){
 	var deviceTypeOptions = document.getElementById("selectAddNewDeviceType").options;
 
@@ -224,8 +257,8 @@ function populateAddDeviceTypeSelect(){
 	
 	$.ajax({
 		type: "GET",
-		url: 'devices/',
-		data: "{}",
+		url: 'devicetypes/',
+		data: "used_by=patient",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
@@ -258,8 +291,8 @@ function deviceTypeSelectChange(){
 	//Get the data for the selected device type and populate the inputs
 		$.ajax({
 		type: "GET",
-		url: 'devices/',
-		data: "{}",
+		url: 'devicetypes/',
+		data: "",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
@@ -276,7 +309,84 @@ function deviceTypeSelectChange(){
 	});
 }
 
+function alertTypeSelectChange(){
+	var element = document.getElementById("selectAlertTypes");
+	var selectedAlertType = element.options[element.selectedIndex].value;
+	if(selectedAlertType == "[Add a New Alert Type]"){
+			document.getElementById("alertType").value="";
+			document.getElementById("alertId").value="";
+			document.getElementById("alertPriority").value="";
+			document.getElementById("alertShortDescription").value="";
+		return;
+	}
+	//Get the data for the selected device type and populate the inputs
+		$.ajax({
+		type: "GET",
+		url: 'alerttype/',
+		data: "id=" + selectedAlertType,
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function (data) {
+			document.getElementById("alertType").value=data.name;
+			document.getElementById("alertId").value=data.id;
+			document.getElementById("alertPriority").value=data.priority;
+			document.getElementById("alertShortDescription").value=data.description;
+		
+		},
+		error: function (msg) {
+			//Temp JSON
+			msg='{"id":"1234","name":"someName","priority":"42","description":"halp me"}';
+			var jsonMSG=JSON.parse(msg);
+			document.getElementById("alertType").value=jsonMSG.name;
+			document.getElementById("alertId").value=jsonMSG.id;
+			document.getElementById("alertPriority").value=jsonMSG.priority;
+			document.getElementById("alertShortDescription").value=jsonMSG.description;
+		}
+	});
+}
+
+function updateAlertType(){
+	var element = document.getElementById("selectAlertTypes");
+	var selectedAlertType = element.options[element.selectedIndex].value;
+	
+	var alertDetails = '{"id":"'+document.getElementById("id").value+'", '+'"devicetype":"' + selectedDeviceType + '", "status":"INACTIVE"}';
+	
+		$.ajax({
+		type: "POST",
+		url: 'alerttype/',
+		data: alertDetails,
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function (data) {
+			alert("success");
+		},
+		error: function (msg) {
+			alert(alertDetails);
+		}
+	});
+	location.href=service;
+}
+
 function addNewPatientDevice(){
-	//Implement it
-	closeModal();
+	var element = document.getElementById("selectAddNewDeviceType");
+	var selectedDeviceType = element.options[element.selectedIndex].innerHTML;
+	
+	var deviceDetails = '{"id":"'+document.getElementById("id").value+'", '+'"devicetype":"' + selectedDeviceType + '", "status":"INACTIVE"}';
+	
+		$.ajax({
+		type: "POST",
+		url: 'devices/',
+		data: deviceDetails,
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function (data) {
+			alert("success");
+		},
+		error: function (msg) {
+			alert(deviceDetails);
+		}
+	});
+	
+	//Refresh the page
+	location.href = service;
 }
