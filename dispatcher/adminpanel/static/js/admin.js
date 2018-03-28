@@ -153,35 +153,16 @@ function closeModal(){
 //Send a new device type/update existing
 //type to the service
 function updateDeviceType(){
-	var modalTarget = event.currentTarget;
-	while(!modalTarget.className.split(' ').includes('modal')){
-		modalTarget = modalTarget.parentElement;
-	}
-	var select;
-	if(modalTarget.id == "manageDeviceTypesModal"){
-		 select = document.getElementById("selectManageDeviceTypes");
-	}else{
-		 select = document.getElementById("selectAddNewDeviceType");
-	}
 
 	var devType = document.getElementById("deviceType").value;
 
 	var deviceType = '"devicetype":"' + devType+'"';
 	var desc = '"description":"' + document.getElementById("shortDescription").value+'"';
+	var id;
 
-	var alerts=[];
-
-	$.each(document.getElementById("deviceAlert").children,function(k,v){
-		var inputs=v.children[1].children;
-		var name = inputs[1].value;
-		var description = inputs[3].value;
-		var priority = inputs[5].value;
-		var fullAlert='{"name":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}';
-			alerts.push(fullAlert);
-	});
 	var alertTypes = document.getElementById("deviceAlert").children;
 
-	var json = '{"patient_device_type":{'+deviceType+','+desc+',"alerttypes":['+alerts+']}}';
+	var json = '{"device_type":{"used_by":"patient","product":"'+deviceType+'","product_description":"'+desc'"}}';
 
 	$.ajax({
 		type: "POST",
@@ -190,14 +171,23 @@ function updateDeviceType(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-
+			id=data.devicetype_id;
 		},
 		error: function (msg) {
 			alert(msg);
 			alert(json);
 		}
 	});
-	//TODO move to success block?
+
+		var alerts=[];
+
+	$.each(document.getElementById("deviceAlert").children,function(k,v){
+		var inputs=v.children[1].children;
+		var name = inputs[1].value;
+		var description = inputs[3].value;
+		var priority = inputs[5].value;
+		var fullAlert='{"name":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}';
+	});
 }
 
 function populateManageDeviceTypeSelect(){
