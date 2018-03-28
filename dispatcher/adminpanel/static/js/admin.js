@@ -189,7 +189,7 @@ function updateDeviceType(){
 
 	$.ajax({
 		type: "POST",
-		url: 'devicetypes',
+		url: 'devicetype',
 		data: json,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -214,17 +214,16 @@ function populateManageDeviceTypeSelect(){
 	$.ajax({
 		type: "GET",
 		url: 'devicetypes',
-		data: "id=ALL",
+		data: "used_by=patient",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			$.each(data, function (k, v) {
-				$.each(v, function (num, deviceType){
-					var option = document.createElement("option");
-					option.value=deviceType;
-					option.innerHTML=deviceType;
-					document.getElementById("selectManageDeviceTypes").appendChild(option);
-				});
+
+			$.each(data.devicetypes, function(k,v){
+				var option = document.createElement("option");
+				option.value=v.product;
+				option.innerHTML=v.product;
+				document.getElementById("selectManageDeviceTypes").appendChild(option);
 			});
 		},
 		error: function (msg) {
@@ -254,17 +253,15 @@ function populateAddDeviceTypeSelect(){
 	$.ajax({
 		type: "GET",
 		url: 'devicetypes',
-		data: "used_by=patient&id=ALL",
+		data: "used_by=patient",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			$.each(data, function (k, v) {
-				$.each(v, function (num, deviceType){
-					var option = document.createElement("option");
-					option.value=deviceType;
-					option.innerHTML=deviceType;
-					document.getElementById("selectAddNewDeviceType").appendChild(option);
-				});
+			$.each(data.devicetypes, function(k,v){
+				var option = document.createElement("option");
+				option.value=v.product;
+				option.innerHTML=v.product;
+				document.getElementById("selectManageDeviceTypes").appendChild(option);
 			});
 		},
 		error: function (msg) {
@@ -295,11 +292,13 @@ function deviceTypeSelectChange(){
 	//Get the data for the selected device type and populate the inputs
 		$.ajax({
 		type: "GET",
-		url: 'devicetypes',
+		url: 'devicetype',
 		data: "",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
+			document.getElementById("deviceType").value=data.product;
+			document.getElementById("shortDescription").value=data.product_description;
 			$.each(data, function (k, v) {
 				document.getElementById(k).value=v;
 			});
