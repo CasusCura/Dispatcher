@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script type="text/javascript" src="res/jquery-3.3.1.min.js"></script>
-		<script type="text/javascript" src="res/admin.js"></script>
-		<script type="text/javascript" src="res/datatables/datatables.min.js"></script>
-		<script async type="text/javascript" src="res/bulma.js"></script>
-		
-		<link rel="stylesheet" type="text/css" href="res/datatables/datatables.min.css"></link>
-		<link rel="stylesheet" type="text/css" href="res/bulma.css"></link>
+		<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="js/admin.js"></script>
+		<script type="text/javascript" src="js/datatables/datatables.min.js"></script>
+		<script async type="text/javascript" src="js/bulma.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="js/datatables/datatables.min.css"></link>
+		<link rel="stylesheet" type="text/css" href="js/bulma.css"></link>
 		<link rel="icon" type="image/png" href="favicon.ico" />
-		
+
 		<title>SVH Admin Panel</title>
 	</head>
-	
+
 	<body>
 
 		<!-- START NAV -->
@@ -20,7 +20,7 @@
 			<div class="container">
 				<div class="navbar-brand">
 					<a class="navbar-item brand-text" href="../">
-						Home          
+						Home
 					</a>
 					<div class="navbar-burger burger" data-target="navMenu">
 					</div>
@@ -60,7 +60,7 @@
 							<li><a href="#" onclick="openManageDeviceTypeModal()">Manage Device Types</a></li>
 							<li><a href="#" onClick="openAddDeviceModal()">Add New Patient Device</a></li>
 						</ul>
-					
+
 					</aside>
 				</div>
 				<div class="column is-9">
@@ -95,21 +95,21 @@
 							<input id="id" class="input" type="text" >
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Device Type</label>
 						<div class="control">
 							<input id="devicetype" class="input" type="text" >
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Location</label>
 						<div class="control">
 							<input id="location" class="input" type="text" >
 						</div>
 					</div>
-					
+
 					<div class="field">
 					<label class="label">Status</label>
 						<div  class="select">
@@ -141,7 +141,7 @@
 				</footer>
 			</div>
 		</div>
-	
+
 	<!-- Add new patient device modal -->
 			<div class="modal" id="addDeviceModal">
 			<div class="modal-background" onClick="closeModal()"></div>
@@ -191,25 +191,25 @@
 							</select>
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Device Type</label>
 						<div class="control">
 							<input id="deviceType" class="input" type="text">
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Short Description</label>
 						<div class="control">
 							<input id="shortDescription" class="input" type="text">
 						</div>
 					</div>
-					
+
 					<div class="control" id="deviceAlert">
-						
+
 					</div>
-					
+
 					<div class="field">
 						<div class="control">
 							<button class="button is-link" onClick="addAlertDiv()">Add Another Alert Type</button>
