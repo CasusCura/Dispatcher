@@ -138,17 +138,12 @@ class DevicesHandler(RequestHandler, SessionMixin):
         with self.make_session() as session:
             baked_query = None
             if used_by is 'nurse':
-                baked_query = baked.bakery(lambda session: session
-                                           .query(NurseDevice))
+                baked_query = session.query(NurseDevice)
             elif used_by is 'patient':
-                baked_query = baked.bakery(lambda session: session
-                                           .query(PatientDevice))
+                baked_query = session.query(PatientDevice)
             else:
-                baked_query = baked.bakery(lambda session: session
-                                           .query(Device))
-            baked_query += lambda q: q.filter(Device.status ==
-                                              bindparam('status'))
-            devices = baked_query(session).params(status=status).all()
+                baked_query = session.query(Device)
+            devices = baked_query.filter(Device.status == status).all()
         if devices is not None:
             return {
                 'status': 'OK',
