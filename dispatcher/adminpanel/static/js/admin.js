@@ -164,7 +164,7 @@ function updateDeviceType(){
 		 select = document.getElementById("selectAddNewDeviceType");
 	}
 
-	var devType = select.options[select.selectedIndex].innerHTML;
+	var devType = document.getElementById("deviceType").value;
 
 	var deviceType = '"devicetype":"' + devType+'"';
 	var desc = '"description":"' + document.getElementById("shortDescription").value+'"';
@@ -267,7 +267,7 @@ function populateAddDeviceTypeSelect(){
 		error: function (msg) {
 			//Temp JSON
 			alert(msg);
-			msg='{"deviceTypes":["push button detection", "auto fall detection", "HALP"]}';
+			/*msg='{"deviceTypes":["push button detection", "auto fall detection", "HALP"]}';
 			var jsonMSG=JSON.parse(msg);
 			$.each(jsonMSG, function (k, v) {
 				$.each(v, function (num, deviceType){
@@ -276,7 +276,7 @@ function populateAddDeviceTypeSelect(){
 					option.innerHTML=deviceType;
 					document.getElementById("selectAddNewDeviceType").appendChild(option);
 				});
-			});
+			});*/
 		}
 	});
 }
