@@ -176,12 +176,8 @@ function updateDeviceType(){
 		var name = inputs[1].value;
 		var description = inputs[3].value;
 		var priority = inputs[5].value;
-		var fullAlert='{"name":'+name+'", "description":"'+description+'","priority":"'+priority+'"}';
-		if(k>0){
-			alerts.push(','+fullAlert);
-		}else{
+		var fullAlert='{"name":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}';
 			alerts.push(fullAlert);
-		}
 	});
 	var alertTypes = document.getElementById("deviceAlert").children;
 
