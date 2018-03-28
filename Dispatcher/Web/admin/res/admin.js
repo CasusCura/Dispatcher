@@ -17,6 +17,8 @@ $(document).ready(function(){
 			openDeviceModal(table.row( this ).data()[0]);
 		}
 	});
+	
+	addAlertDiv();
 })
 
 //Get the list of devices from the service & populate the main table
@@ -43,7 +45,7 @@ function filterTable(filter){
 	$.ajax({
 		type: "GET",
 		url: service+'/devices/',
-		data: "devicestatus="+filter,
+		data: "user_type=patient&devicestatus="+filter,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
@@ -54,7 +56,7 @@ function filterTable(filter){
 			});
 		},
 		error: function (msg) {
-			
+			alert(msg);
 			//TODO rm -rf & add notify user
 			msg='{ "deviceArray":[{"id":"dev1","devicetype":"autoFallDetection","status":"active","location":"Narnia"},{"id":"dev12","devicetype":"ManualFallDetection","status":"active","location":"Mordor"}]}';
 			var jsonMSG=JSON.parse(msg);
@@ -83,7 +85,7 @@ function populateDeviceEditDialog(devId){
 			});
 		},
 		error: function (msg) {
-			
+			alert(msg);
 			//Temp JSON
 			msg='{"id":"dev1","devicetype":"autoFallDetection","status":"INACTIVE","location":"Narnia","username":"aUserName","password":"password1234"}';
 			var jsonMSG=JSON.parse(msg);
@@ -108,6 +110,7 @@ function updatePatientDev(){
 			alert("success");
 		},
 		error: function (msg) {
+			alert(msg);
 			alert(deviceDetails);
 		}
 	});
@@ -147,6 +150,8 @@ function closeModal(){
 	}
 
 	target.className = "modal";
+	
+	document.getElementById("deviceAlert").innerHTML="";
 }
 
 //Send a new device type/update existing
@@ -165,19 +170,39 @@ function updateDeviceType(){
 
 	var devType = select.options[select.selectedIndex].innerHTML;
 	
-	var typeDetails = '{"devicetype":"' + devType + '",description":"' + document.getElementById("shortDescription") + '"}';
+	var deviceType = '"devicetype":"' + devType+'"';
+	var desc = '"description":"' + document.getElementById("shortDescription").value+'"';
+	
+	var alerts=[];
+
+	$.each(document.getElementById("deviceAlert").children,function(k,v){
+		var inputs=v.children[1].children;
+		var name = inputs[1].value;
+		var description = inputs[3].value;
+		var priority = inputs[5].value;
+		var fullAlert='{"name":'+name+'", "description":"'+description+'","priority":"'+priority+'"}';
+		if(k>0){
+			alerts.push(','+fullAlert);
+		}else{
+			alerts.push(fullAlert);
+		}
+	});
+	var alertTypes = document.getElementById("deviceAlert").children;
+	
+	var json = '{'+deviceType+','+desc+',"alerttypes":['+alerts+']}';
 	
 	$.ajax({
 		type: "POST",
 		url: 'devicetypes/',
-		data: typeDetails,
+		data: json,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
 
 		},
 		error: function (msg) {
-			alert("nope");
+			alert(msg);
+			alert(json);
 		}
 	});
 	//TODO move to success block?
@@ -198,10 +223,18 @@ function populateManageDeviceTypeSelect(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			alert("hi");
+			$.each(data, function (k, v) {
+				$.each(v, function (num, deviceType){
+					var option = document.createElement("option");
+					option.value=deviceType;
+					option.innerHTML=deviceType;
+					document.getElementById("selectManageDeviceTypes").appendChild(option);
+				});
+			});
 		},
 		error: function (msg) {
 			//Temp JSON
+			alert(msg);
 			msg='{"deviceTypes":["push button detection", "auto fall detection", "HALP"]}';
 			var jsonMSG=JSON.parse(msg);
 			$.each(jsonMSG, function (k, v) {
@@ -210,38 +243,6 @@ function populateManageDeviceTypeSelect(){
 					option.value=deviceType;
 					option.innerHTML=deviceType;
 					document.getElementById("selectManageDeviceTypes").appendChild(option);
-				});
-			});
-		}
-	});
-}
-
-function populateAlertTypeSelect(){
-		var deviceTypeOptions = document.getElementById("selectAlertTypes").options;
-
-	while(deviceTypeOptions.length > 1){
-		deviceTypeOptions[1].remove();
-	}
-	
-	$.ajax({
-		type: "GET",
-		url: 'alerttypes/',
-		data: "",
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		success: function (data) {
-			alert("hi");
-		},
-		error: function (msg) {
-			//Temp JSON
-			msg='{"alertypes":[{"name":"I haz fallen","id":"1234"}, {"name":"and cant get up","id":"5678"}]}';
-			var jsonMSG=JSON.parse(msg);
-			$.each(jsonMSG, function (k, v) {
-				$.each(v, function (num, alertType){
-					var option = document.createElement("option");
-					option.value=alertType.id;
-					option.innerHTML=alertType.name;
-					document.getElementById("selectAlertTypes").appendChild(option);
 				});
 			});
 		}
@@ -262,10 +263,18 @@ function populateAddDeviceTypeSelect(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			alert("hi");
+			$.each(data, function (k, v) {
+				$.each(v, function (num, deviceType){
+					var option = document.createElement("option");
+					option.value=deviceType;
+					option.innerHTML=deviceType;
+					document.getElementById("selectAddNewDeviceType").appendChild(option);
+				});
+			});
 		},
 		error: function (msg) {
 			//Temp JSON
+			alert(msg);
 			msg='{"deviceTypes":["push button detection", "auto fall detection", "HALP"]}';
 			var jsonMSG=JSON.parse(msg);
 			$.each(jsonMSG, function (k, v) {
@@ -296,10 +305,13 @@ function deviceTypeSelectChange(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			alert("hi");
+			$.each(data, function (k, v) {
+				document.getElementById(k).value=v;
+			});
 		},
 		error: function (msg) {
 			//Temp JSON
+			alert(msg);
 			msg='{"deviceType":"auto fall detection","shortDescription":"An accelerometer-based fall detection bracelet"}';
 			var jsonMSG=JSON.parse(msg);
 			$.each(jsonMSG, function (k, v) {
@@ -307,68 +319,6 @@ function deviceTypeSelectChange(){
 			});
 		}
 	});
-}
-
-function alertTypeSelectChange(){
-	var element = document.getElementById("selectAlertTypes");
-	var selectedAlertType = element.options[element.selectedIndex].value;
-	if(selectedAlertType == "[Add a New Alert Type]"){
-			document.getElementById("alertType").value="";
-			document.getElementById("alertId").value="";
-			document.getElementById("alertPriority").value="";
-			document.getElementById("alertShortDescription").value="";
-		return;
-	}
-	//Get the data for the selected device type and populate the inputs
-		$.ajax({
-		type: "GET",
-		url: 'alerttype/',
-		data: "id=" + selectedAlertType,
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		success: function (data) {
-			document.getElementById("alertType").value=data.name;
-			document.getElementById("alertId").value=data.id;
-			document.getElementById("alertPriority").value=data.priority;
-			document.getElementById("alertShortDescription").value=data.description;
-		
-		},
-		error: function (msg) {
-			//Temp JSON
-			msg='{"id":"1234","name":"someName","priority":"42","description":"halp me"}';
-			var jsonMSG=JSON.parse(msg);
-			document.getElementById("alertType").value=jsonMSG.name;
-			document.getElementById("alertId").value=jsonMSG.id;
-			document.getElementById("alertPriority").value=jsonMSG.priority;
-			document.getElementById("alertShortDescription").value=jsonMSG.description;
-		}
-	});
-}
-
-function updateAlertType(){
-	//TODO stopped working here
-	var element = document.getElementById("selectAlertTypes");
-	var selectedAlertType = element.options[element.selectedIndex].value;
-	var priority = document.getElementById("alertPriority").value;
-	var alertId = document.getElementById("alertId").value;
-	var description = document.getElementById("alertShortDescription").value;
-	var alertType = document.getElementById("alertType").value;
-	var alertDetails = '{"id":"' + alertId +'", "name":"' + alertType + '", "priority":"'+priority+'","description":"'+ description+'}';
-
-		$.ajax({
-		type: "POST",
-		url: 'alerttype/',
-		data: alertDetails,
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		success: function (data) {
-			alert("success");
-		},
-		error: function (msg) {
-			alert(alertDetails);
-		}
-	});
-	location.href=service;
 }
 
 function addNewPatientDevice(){
@@ -384,13 +334,65 @@ function addNewPatientDevice(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			alert("success");
 		},
 		error: function (msg) {
+			alert(msg);
 			alert(deviceDetails);
 		}
 	});
 	
 	//Refresh the page
 	location.href = service;
+}
+
+function addAlertDiv(name, description, priority){
+	
+	var newElem = document.createElement('div');
+	newElem.className="field";
+	
+	var mainLabel = document.createElement('label');
+	mainLabel.className="label";
+	mainLabel.innerHTML="AlertType";
+
+	var controlDiv = document.createElement('div');
+	controlDiv.className="control";
+	
+	var nameLabel = document.createElement('label');
+	nameLabel.className = "label is-small";
+	nameLabel.innerHTML="Name";
+
+	var descLabel = document.createElement('label');
+	descLabel.className = "label is-small";
+	descLabel.innerHTML="Short Description";
+
+	var priorityLabel = document.createElement('label');
+	priorityLabel.className = "label is-small";
+	priorityLabel.innerHTML="Priority";
+	
+	var nameInput = document.createElement('input');
+	nameInput.className = "input";
+	nameInput.type = "text";
+	if(name)nameInput.value=name;
+
+	var descInput = document.createElement('input');
+	descInput.className = "input";
+	descInput.type = "text";
+	if(description)descInput.value=description;
+
+	var priorityInput = document.createElement('input');
+	priorityInput.className = "input";
+	priorityInput.type = "number";
+	if(priority)priorityInput.value=priority;
+	
+	newElem.appendChild(mainLabel);
+	newElem.appendChild(controlDiv);
+	controlDiv.appendChild(nameLabel);
+	controlDiv.appendChild(nameInput);
+	controlDiv.appendChild(descLabel);
+	controlDiv.appendChild(descInput);
+	controlDiv.appendChild(priorityLabel);
+	controlDiv.appendChild(priorityInput);
+	
+	document.getElementById("deviceAlert").appendChild(newElem);
+
 }
