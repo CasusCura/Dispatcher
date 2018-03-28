@@ -26,7 +26,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
             ret = self._get(uuid)
             if 'device' in ret:
                 self.set_status(200)
-                self.write(json.dumps(ret))
+                self.write(ret)
                 self.finish()
         else:
             ret = {
@@ -35,7 +35,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
                 'error': 'No id provided'
             }
         self.set_status(400)
-        self.write(json.dumps(ret))
+        self.write(ret)
         self.finish()
 
     def _get(self, id):
@@ -72,7 +72,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
                 'error': 'ALL YOU BASE ARE BELONG TO US NOW',
             }
         self.set_status(ret['code'])
-        self.write(json.dumps(ret))
+        self.write(ret)
         self.finish()
 
     def _post(self, device_json):
@@ -130,7 +130,7 @@ class DevicesHandler(RequestHandler, SessionMixin):
                 'error': 'Missing parameter status'
             }
         self.set_status(ret['code'])
-        self.write(json.dumps(ret))
+        self.write(ret)
         self.finish()
 
     def _get(self, status, used_by):
@@ -158,7 +158,7 @@ class DevicesHandler(RequestHandler, SessionMixin):
             }
 
 
-class DeviceTypesHandler(RequestHandler, SessionMixin):
+class DeviceTypeHandler(RequestHandler, SessionMixin):
     def get(self):
         id = self.get_argument('id', None)
         ret = None
@@ -171,7 +171,7 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
                 'error': 'No parameters',
             }
         self.set_status(ret['code'])
-        self.write(json.dumps(ret))
+        self.write(ret)
         self.finish()
 
     def _get(self, id):
@@ -193,40 +193,41 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
             }
 
     def post(self):
-        nurse_d_type_json = self.get_argument('patientdevicetype', None)
-        patient_d_type_json = self.get_argument('nursedevicetype', None)
+        nurse_d_type_json = self.get_argument('patient_device_type', None)
+        patient_d_type_json = self.get_argument('nurse_device_type', None)
+        print('lol')
+        ret = None
         if nurse_d_type_json and patient_d_type_json:
-            return {
+            ret = {
                 'status': 'BAD',
                 'code': 400,
                 'error': 'Too many parameters',
             }
         if nurse_d_type_json is None and patient_d_type_json is None:
-            return {
+            ret = {
                 'status': 'BAD',
                 'code': 400,
                 'error': 'No parameters',
             }
+        if ret is None:
+            used_by = 'patient'
+            device_json = patient_d_type_json
+            if nurse_d_type_json:
+                used_by = 'nurse'
+                device_json = nurse_d_type_json
 
-        used_by = 'patient'
-        device_json = patient_d_type_json
-        if nurse_d_type_json:
-            used_by = 'nurse'
-            device_json = nurse_d_type_json
-
-        ret = None
-        try:
-            device_type = json.load(device_json)
-            ret = self._post(device_type, used_by)
-        except Exception as e:
-            # TODO: Make this Json load specific
-            ret = {
-                'status': 'BAD',
-                'code': 400,
-                'error': 'Invalid json',
-            }
+            try:
+                device_type = json.load(device_json)
+                ret = self._post(device_type, used_by)
+            except Exception as e:
+                # TODO: Make this Json load specific
+                ret = {
+                    'status': 'BAD',
+                    'code': 400,
+                    'error': 'Invalid json',
+                }
         self.set_status(ret['code'])
-        self.write(json.dumps(ret))
+        self.write(ret)
         self.finish()
 
     def _post(self, device_type_d, used_by):
@@ -258,6 +259,45 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
                 'status': 'BAD',
                 'code': 400,
                 'error': 'Missing parameters',
+            }
+
+
+class DeviceTypesHandler(RequestHandler, SessionMixin):
+    def get(self):
+        id = self.get_argument('used_by', None)
+        ret = None
+        if id:
+            ret = self._get(id)
+        else:
+            ret = {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'No parameters',
+            }
+        self.set_status(ret['code'])
+        self.write(ret)
+        self.finish()
+
+    def _get(self, used_by):
+        device_types = None
+        with self.make_session() as session:
+            if used_by is 'nurse':
+                device_types = session.query(NurseDeviceType).all()
+            elif used_by is 'patient':
+                device_types = session.query(PatientDeviceType).all()
+            else:
+                device_types = session.query(DeviceType).all()
+        if device_types is not None:
+            return {
+                'status': 'OK',
+                'code': 200,
+                'device_types': device_types,
+            }
+        else:
+            return {
+                'status': 'FAILED',
+                'code': 500,
+                'error': 'pay me IN BITCOIN',
             }
 
 

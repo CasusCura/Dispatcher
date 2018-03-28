@@ -2,6 +2,7 @@ from dispatcher import SimpleRouter
 from dispatcher.adminpanel import (PanelHandler,
                                    DeviceHandler,
                                    DevicesHandler,
+                                   DeviceTypeHandler,
                                    DeviceTypesHandler)
 
 import tornado
@@ -14,6 +15,7 @@ class AdminRouter(SimpleRouter):
             (r'/admin/', PanelHandler),
             (r'/admin/device', DeviceHandler),
             (r'/admin/devices', DevicesHandler),
+            (r'/admin/devicetype', DeviceTypeHandler),
             (r'/admin/devicetypes', DeviceTypesHandler),
             (r'/admin/(favicon.ico)',
                 tornado.web.StaticFileHandler,

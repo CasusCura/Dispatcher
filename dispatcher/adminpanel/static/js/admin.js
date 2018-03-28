@@ -181,7 +181,7 @@ function updateDeviceType(){
 	});
 	var alertTypes = document.getElementById("deviceAlert").children;
 
-	var json = '{"patientdevicetype":{'+deviceType+','+desc+',"alerttypes":['+alerts+']}}';
+	var json = '{"patient_device_type":{'+deviceType+','+desc+',"alerttypes":['+alerts+']}}';
 
 	$.ajax({
 		type: "POST",
