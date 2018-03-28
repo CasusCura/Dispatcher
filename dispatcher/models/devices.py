@@ -42,7 +42,7 @@ class PatientDevice(Device):
     issues = relationship('Issue',
                           primaryjoin='Device.id == \
                           Issue.patientdevice')
-    __mapper_args__ = {'polymorphic_identity': 'patientdevice'}
+    __mapper_args__ = {'polymorphic_identity': 'patient'}
 
     def __init__(self, devicetype: String, location: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
@@ -61,7 +61,7 @@ class NurseDevice(Device):
                              order_by='Response.first_issued',
                              primaryjoin='NurseDevice.id == \
                              Response.nursedevice')
-    __mapper_args__ = {'polymorphic_identity': 'nursedevice'}
+    __mapper_args__ = {'polymorphic_identity': 'nurse'}
 
     def __init__(self, devicetype: String, floor: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
@@ -80,7 +80,7 @@ class DeviceType(Base):
     id = Column(String(32), primary_key=True)
     product_name = Column(String, nullable=False)
     product_description = Column(String, nullable=False)
-    discriminator = Column('devicetype', String(50))
+    discriminator = Column('used_by', String(50))
     devices = relationship('Device',
                            primaryjoin='DeviceType.id == Device.devicetype',
                            foreign_keys='Device.devicetype')
@@ -89,29 +89,29 @@ class DeviceType(Base):
     def serialize(self, **kwargs):
         return {
             'id': self.id,
-            'product_name': self.devicetype,
-            'product_description': self.description,
-            'devicetype': self.discriminator,
+            'product_name': self.product_name,
+            'product_description': self.product_description,
+            'used_by': self.discriminator,
             **kwargs
         }
 
 
 class NurseDeviceType(DeviceType):
-    __mapper_args__ = {'polymorphic_identity': 'nursedevice'}
+    __mapper_args__ = {'polymorphic_identity': 'nurse'}
     devices = relationship('Device')
 
     def __init__(self, name: String, description: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.name = name
-        self.description = description
+        self.product_name = name
+        self.product_description = description
 
 
 class PatientDeviceType(DeviceType):
     requesttypes = relationship('RequestType')
     devices = relationship('Device')
-    __mapper_args__ = {'polymorphic_identity': 'patientdevice'}
+    __mapper_args__ = {'polymorphic_identity': 'patient'}
 
     def __init__(self, name: String, description: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.name = name
-        self.description = description
+        self.product_name = name
+        self.product_description = description

@@ -159,7 +159,9 @@ class DevicesHandler(RequestHandler, SessionMixin):
 
 
 class DeviceTypeHandler(RequestHandler, SessionMixin):
+    """Handles returning and creating new device types."""
     def get(self):
+        """Handle get requests when an id is provided."""
         id = self.get_argument('id', None)
         ret = None
         if id:
@@ -168,13 +170,14 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
             ret = {
                 'status': 'BAD',
                 'code': 400,
-                'error': 'No parameters',
+                'error': 'No id provided',
             }
         self.set_status(ret['code'])
         self.write(ret)
         self.finish()
 
     def _get(self, id):
+        """Queries the dispatcher back end for the proper device type."""
         device_type = None
         with self.make_session() as session:
             device_type = session.query(DeviceType)\
@@ -193,67 +196,66 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
             }
 
     def post(self):
-        nurse_d_type_json = self.get_argument('patient_device_type', None)
-        patient_d_type_json = self.get_argument('nurse_device_type', None)
-        print('lol')
+        """Hanldes creating/updating a new device type."""
+        data = json.loads(self.request.body)
         ret = None
-        if nurse_d_type_json and patient_d_type_json:
-            ret = {
-                'status': 'BAD',
-                'code': 400,
-                'error': 'Too many parameters',
-            }
-        if nurse_d_type_json is None and patient_d_type_json is None:
+        device_type = None
+        used_by = None
+        try:
+            used_by = data['used_by']
+            device_type = data['device_type_json']
+        except KeyError as ke:
             ret = {
                 'status': 'BAD',
                 'code': 400,
                 'error': 'No parameters',
             }
-        if ret is None:
-            used_by = 'patient'
-            device_json = patient_d_type_json
-            if nurse_d_type_json:
-                used_by = 'nurse'
-                device_json = nurse_d_type_json
+        except Exception as e:
+            ret = {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'Too many parameters',
+            }
 
+        if ret is None:
             try:
-                device_type = json.load(device_json)
                 ret = self._post(device_type, used_by)
             except Exception as e:
                 # TODO: Make this Json load specific
                 ret = {
                     'status': 'BAD',
                     'code': 400,
-                    'error': 'Invalid json',
+                    'error': 'Invalid device type format',
                 }
         self.set_status(ret['code'])
         self.write(ret)
         self.finish()
 
-    def _post(self, device_type_d, used_by):
-        if DeviceType.required_cols == set(device_type_d.keys()):
-            device_type = None
+    def _post(self, used_by, **device_type):
+        """Inserts the new devicetype"""
+        device_type = None
+        if 'id' in device_type:
+            id = device_type['id']
             with self.make_session() as session:
                 if used_by is 'nurse':
-                    device_type = NurseDeviceType(
-                        device_type_d['product_name'],
-                        device_type_d['product_description'])
+                    device_type = session.query(PatientDeviceType)\
+                        .filter_by(id=id)\
+                        .update(device_type)
+                elif used_by is 'patient':
+                    device_type = session.query(PatientDeviceType)\
+                        .filter_by(id=id)\
+                        .update(device_type)
+                if device_type:
+                    return {
+                        'status': 'OK',
+                        'code': 204
+                    }
                 else:
-                    device_type = PatientDeviceType(
-                        device_type_d['product_name'],
-                        device_type_d['product_description'])
-                session.add(device_type)
-            if device_type:
-                return {
-                    'status': 'OK',
-                    'code': 204
-                }
-            else:
-                return {
-                    'status': 'FAILED',
-                    'code': 500,
-                    'error': 'CSGames was an inside job',
-                }
+                    return {
+                        'status': 'FAILED',
+                        'code': 500,
+                        'error': 'CSGames was an inside job',
+                    }
         else:
             return {
                 'status': 'BAD',
