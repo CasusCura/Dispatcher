@@ -26,7 +26,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
             ret = self._get(uuid)
             if 'device' in ret:
                 self.set_status(200)
-                self.writeout(json.dump(ret))
+                self.write(json.dump(ret))
                 self.finish()
         else:
             ret = {
@@ -35,7 +35,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
                 'error': 'No id provided'
             }
         self.set_status(400)
-        self.writeout(json.dump(ret))
+        self.write(json.dump(ret))
         self.finish()
 
     def _get(self, id):
@@ -72,7 +72,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
                 'error': 'ALL YOU BASE ARE BELONG TO US NOW',
             }
         self.set_status(ret['code'])
-        self.writeout(json.dump(ret))
+        self.write(json.dump(ret))
         self.finish()
 
     def _post(self, device_json):
@@ -130,7 +130,7 @@ class DevicesHandler(RequestHandler, SessionMixin):
                 'error': 'Missing parameter status'
             }
         self.set_status(ret['code'])
-        self.writeout(json.dump(ret))
+        self.write(json.dump(ret))
         self.finish()
 
     def _get(self, status, used_by):
@@ -176,7 +176,7 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
                 'error': 'No parameters',
             }
         self.set_status(ret['code'])
-        self.writeout(json.dump(ret))
+        self.write(json.dump(ret))
         self.finish()
 
     def _get(self, id):
@@ -231,7 +231,7 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
                 'error': 'Invalid json',
             }
         self.set_status(ret['code'])
-        self.writeout(json.dump(ret))
+        self.write(json.dump(ret))
         self.finish()
 
     def _post(self, device_type_d, used_by):

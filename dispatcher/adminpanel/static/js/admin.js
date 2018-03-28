@@ -1,12 +1,12 @@
-var service = 'happyfeet';//'https://api.svh';
+var service = '';//'https://api.svh';
 var table;
 
 $(document).ready(function(){
 	table = $('#deviceTable').DataTable();
-	
+
 	//Populate the table of all devices (default to 'ACTIVE')
 	filterTable("ALL");
-	
+
 	//Make the table click-able
 	$('#deviceTable tbody').on( 'click', 'tr', function () {
 		if ( $(this).hasClass('selected') ) {
@@ -17,7 +17,7 @@ $(document).ready(function(){
 			openDeviceModal(table.row( this ).data()[0]);
 		}
 	});
-	
+
 	addAlertDiv();
 })
 
@@ -41,10 +41,10 @@ function filterTable(filter){
 	}else{
 		filter="event.id";
 	}
-	
+
 	$.ajax({
 		type: "GET",
-		url: service+'/devices/',
+		url: 'devices',
 		data: "user_type=patient&devicestatus="+filter,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -60,11 +60,11 @@ function filterTable(filter){
 			//TODO rm -rf & add notify user
 			msg='{ "deviceArray":[{"id":"dev1","devicetype":"autoFallDetection","status":"active","location":"Narnia"},{"id":"dev12","devicetype":"ManualFallDetection","status":"active","location":"Mordor"}]}';
 			var jsonMSG=JSON.parse(msg);
-			$.each(jsonMSG.deviceArray, function (deviceArray, device) {
+			/*$.each(jsonMSG.deviceArray, function (deviceArray, device) {
 				table.row.add([
 					device.id, device.devicetype, device.status, device.location
 				]);
-			});
+			});*/
 		}
 	});
 	table.draw();
@@ -72,10 +72,10 @@ function filterTable(filter){
 
 //Fetch the details of the specified device from the service
 function populateDeviceEditDialog(devId){
-	
+
 	$.ajax({
 		type: "GET",
-		url: 'device/',
+		url: 'device',
 		data: "id=" + devId,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -89,9 +89,9 @@ function populateDeviceEditDialog(devId){
 			//Temp JSON
 			msg='{"id":"dev1","devicetype":"autoFallDetection","status":"INACTIVE","location":"Narnia","username":"aUserName","password":"password1234"}';
 			var jsonMSG=JSON.parse(msg);
-			$.each(jsonMSG, function (k, v) {
+			/*$.each(jsonMSG, function (k, v) {
 				document.getElementById(k).value=v;
-			});
+			});*/
 		}
 	});
 }
@@ -99,7 +99,7 @@ function populateDeviceEditDialog(devId){
 //POST updated details of a device to the service (or add a new device)
 function updatePatientDev(){
 	var deviceDetails = '{"device":{"id":"'+document.getElementById("id").value+'", "status":"'+ document.getElementById("status").value+'","location":"'+document.getElementById("location").value+'"}}';
-	
+
 		$.ajax({
 		type: "POST",
 		url: 'devices/',
@@ -114,10 +114,10 @@ function updatePatientDev(){
 			alert(deviceDetails);
 		}
 	});
-	
+
 	//Refresh the page
-	location.href = service;
-}	
+	location.href = 'admin/';
+}
 
 //Opens the modal for editing a device's details, after populating its fields
 function openDeviceModal(devId){
@@ -144,13 +144,13 @@ function openAlertTypesModal(){
 //Close any open modal dialog
 function closeModal(){
 	var target=event.currentTarget;
-	
+
 	while(!target.className.split(' ').includes('modal') && !target.className.split(' ').includes('is-active')){
 		target = target.parentElement;
 	}
 
 	target.className = "modal";
-	
+
 	document.getElementById("deviceAlert").innerHTML="";
 }
 
@@ -169,10 +169,10 @@ function updateDeviceType(){
 	}
 
 	var devType = select.options[select.selectedIndex].innerHTML;
-	
+
 	var deviceType = '"devicetype":"' + devType+'"';
 	var desc = '"description":"' + document.getElementById("shortDescription").value+'"';
-	
+
 	var alerts=[];
 
 	$.each(document.getElementById("deviceAlert").children,function(k,v){
@@ -188,12 +188,12 @@ function updateDeviceType(){
 		}
 	});
 	var alertTypes = document.getElementById("deviceAlert").children;
-	
+
 	var json = '{"patientdevicetype":{'+deviceType+','+desc+',"alerttypes":['+alerts+']}}';
-	
+
 	$.ajax({
 		type: "POST",
-		url: 'devicetypes/',
+		url: 'devicetypes',
 		data: json,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -206,7 +206,6 @@ function updateDeviceType(){
 		}
 	});
 	//TODO move to success block?
-	location.href="admin.html";
 }
 
 function populateManageDeviceTypeSelect(){
@@ -215,10 +214,10 @@ function populateManageDeviceTypeSelect(){
 	while(deviceTypeOptions.length > 1){
 		deviceTypeOptions[1].remove();
 	}
-	
+
 	$.ajax({
 		type: "GET",
-		url: 'devicetypes/',
+		url: 'devicetypes',
 		data: "",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -237,14 +236,14 @@ function populateManageDeviceTypeSelect(){
 			alert(msg);
 			msg='{"deviceTypes":["push button detection", "auto fall detection", "HALP"]}';
 			var jsonMSG=JSON.parse(msg);
-			$.each(jsonMSG, function (k, v) {
+			/*$.each(jsonMSG, function (k, v) {
 				$.each(v, function (num, deviceType){
 					var option = document.createElement("option");
 					option.value=deviceType;
 					option.innerHTML=deviceType;
 					document.getElementById("selectManageDeviceTypes").appendChild(option);
 				});
-			});
+			});*/
 		}
 	});
 }
@@ -255,10 +254,10 @@ function populateAddDeviceTypeSelect(){
 	while(deviceTypeOptions.length > 0){
 		deviceTypeOptions[0].remove();
 	}
-	
+
 	$.ajax({
 		type: "GET",
-		url: 'devicetypes/',
+		url: 'devicetypes',
 		data: "used_by=patient",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -300,7 +299,7 @@ function deviceTypeSelectChange(){
 	//Get the data for the selected device type and populate the inputs
 		$.ajax({
 		type: "GET",
-		url: 'devicetypes/',
+		url: 'devicetypes',
 		data: "",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -324,12 +323,12 @@ function deviceTypeSelectChange(){
 function addNewPatientDevice(){
 	var element = document.getElementById("selectAddNewDeviceType");
 	var selectedDeviceType = element.options[element.selectedIndex].innerHTML;
-	
+
 	var deviceDetails = '{"id":"'+document.getElementById("id").value+'", '+'"devicetype":"' + selectedDeviceType + '", "status":"INACTIVE"}';
-	
+
 		$.ajax({
 		type: "POST",
-		url: 'devices/',
+		url: 'devices',
 		data: deviceDetails,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -340,23 +339,23 @@ function addNewPatientDevice(){
 			alert(deviceDetails);
 		}
 	});
-	
+
 	//Refresh the page
-	location.href = service;
+	location.href = 'admin';
 }
 
 function addAlertDiv(name, description, priority){
-	
+
 	var newElem = document.createElement('div');
 	newElem.className="field";
-	
+
 	var mainLabel = document.createElement('label');
 	mainLabel.className="label";
 	mainLabel.innerHTML="AlertType";
 
 	var controlDiv = document.createElement('div');
 	controlDiv.className="control";
-	
+
 	var nameLabel = document.createElement('label');
 	nameLabel.className = "label is-small";
 	nameLabel.innerHTML="Name";
@@ -368,7 +367,7 @@ function addAlertDiv(name, description, priority){
 	var priorityLabel = document.createElement('label');
 	priorityLabel.className = "label is-small";
 	priorityLabel.innerHTML="Priority";
-	
+
 	var nameInput = document.createElement('input');
 	nameInput.className = "input";
 	nameInput.type = "text";
@@ -383,7 +382,7 @@ function addAlertDiv(name, description, priority){
 	priorityInput.className = "input";
 	priorityInput.type = "number";
 	if(priority)priorityInput.value=priority;
-	
+
 	newElem.appendChild(mainLabel);
 	newElem.appendChild(controlDiv);
 	controlDiv.appendChild(nameLabel);
@@ -392,7 +391,7 @@ function addAlertDiv(name, description, priority){
 	controlDiv.appendChild(descInput);
 	controlDiv.appendChild(priorityLabel);
 	controlDiv.appendChild(priorityInput);
-	
+
 	document.getElementById("deviceAlert").appendChild(newElem);
 
 }
