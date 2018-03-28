@@ -45,7 +45,7 @@ function filterTable(filter){
 	$.ajax({
 		type: "GET",
 		url: 'devices',
-		data: "user_type=patient&devicestatus="+filter,
+		data: "used_by=patient&devicestatus="+filter,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
