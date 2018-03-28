@@ -36,11 +36,7 @@ function filterTable(filter){
 
 	table.clear();
 
-	if(filter=="ALL"){
-		filter = "";
-	}else{
-		filter="event.id";
-	}
+		filter=event.currentTarget.id;
 
 	$.ajax({
 		type: "GET",
