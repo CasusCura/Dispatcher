@@ -5,12 +5,12 @@
 		<script type="text/javascript" src="res/admin.js"></script>
 		<script type="text/javascript" src="res/datatables/datatables.min.js"></script>
 		<script async type="text/javascript" src="res/bulma.js"></script>
-		
+
 		<link rel="stylesheet" type="text/css" href="res/datatables/datatables.min.css"></link>
 		<link rel="stylesheet" type="text/css" href="res/bulma.css"></link>
 		<link rel="icon" type="image/png" href="favicon.ico" />
 	</head>
-	
+
 	<body>
 
 		<!-- START NAV -->
@@ -18,7 +18,7 @@
 			<div class="container">
 				<div class="navbar-brand">
 					<a class="navbar-item brand-text" href="../">
-						Home          
+						Home
 					</a>
 					<div class="navbar-burger burger" data-target="navMenu">
 					</div>
@@ -59,7 +59,7 @@
 							<li><a href="#" onClick="openAddDeviceModal()">Add New Patient Device</a></li>
 							<li><a href="#" onClick="openAlertTypesModal()">Manage Alert Types</a></li>
 						</ul>
-					
+
 					</aside>
 				</div>
 				<div class="column is-9">
@@ -94,21 +94,21 @@
 							<input id="id" class="input" type="text" >
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Device Type</label>
 						<div class="control">
 							<input id="devicetype" class="input" type="text" >
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Location</label>
 						<div class="control">
 							<input id="location" class="input" type="text" >
 						</div>
 					</div>
-					
+
 					<div class="field">
 					<label class="label">Status</label>
 						<div  class="select">
@@ -140,7 +140,7 @@
 				</footer>
 			</div>
 		</div>
-	
+
 	<!-- Add new patient device modal -->
 			<div class="modal" id="addDeviceModal">
 			<div class="modal-background" onClick="closeModal()"></div>
@@ -190,14 +190,14 @@
 							</select>
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Device Type</label>
 						<div class="control">
 							<input id="deviceType" class="input" type="text">
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Short Description</label>
 						<div class="control">
@@ -211,8 +211,8 @@
 				</footer>
 			</div>
 		</div>
-		
-		
+
+
 	<!-- Manage alert types modal -->
 		<div class="modal" id="editAlertTypesModal">
 			<div class="modal-background" onClick="closeModal()"></div>
@@ -230,28 +230,28 @@
 							</select>
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Alert Type</label>
 						<div class="control">
 							<input id="alertType" class="input" type="text">
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Alert Id</label>
 						<div class="control">
 							<input id="alertId" class="input" type="text" readonly>
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Alert Priority</label>
 						<div class="control">
 							<input id="alertPriority" class="input" type="number">
 						</div>
 					</div>
-					
+
 					<div class="field">
 						<label class="label">Short Description</label>
 						<div class="control">
