@@ -14,8 +14,7 @@ import json
 class PanelHandler(RequestHandler, SessionMixin):
     def get(self):
         """Render the panel."""
-        self.set_status(200)
-        self.finish()
+        self.render('static/admin.html')
 
 
 class DeviceHandler(RequestHandler, SessionMixin):

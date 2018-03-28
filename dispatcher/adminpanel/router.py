@@ -4,12 +4,12 @@ from dispatcher.adminpanel import (PanelHandler,
                                    DevicesHandler,
                                    DeviceTypesHandler)
 
+import tornado
+
 
 class AdminRouter(SimpleRouter):
-    """docstring for NurseRouter"""
-    """docstring for NurseRouter"""
+    """Docstring for AdminRouter."""
     def __init__(self):
-        print(os.getcwd())
         routes = [
             (r'/admin/', PanelHandler),
             (r'/admin/device', DeviceHandler),
