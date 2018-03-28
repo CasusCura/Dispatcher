@@ -5,7 +5,6 @@ from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum
 import uuid
-import json
 
 
 class DeviceStatus(enum.Enum):
@@ -19,19 +18,21 @@ class Device(Base):
     """Represents any device that needs to have credentials managed for
     authentication to the WPA2 network."""
     __tablename__ = 'devices'
+
     id = Column(String(32), primary_key=True)
     devicetype = Column(String(32), ForeignKey('devicetypes.id'))
     status = Column(Enum(DeviceStatus), nullable=False)
     used_by = Column(String(10))
     __mapper_args__ = {'polymorphic_on': used_by}
 
-    def as_json(self, **kwargs):
-        return json.dump({
+    def serialize(self, **kwargs):
+        return {
             'id': id,
             'devicetype': self.devicetype,
             'status': self.status,
             'used_by': self.used_by,
-            **kwargs})
+            **kwargs
+        }
 
 
 class PatientDevice(Device):
@@ -39,8 +40,8 @@ class PatientDevice(Device):
     many patients but is identified to nurses via its location."""
     location = Column(String(50))
     issues = relationship('Issue',
-                          primaryjoin='Device.id == '
-                          'Issue.patientdevice')
+                          primaryjoin='Device.id == \
+                          Issue.patientdevice')
     __mapper_args__ = {'polymorphic_identity': 'patientdevice'}
 
     def __init__(self, devicetype: String, location: String):
@@ -49,17 +50,17 @@ class PatientDevice(Device):
         self.status = DeviceStatus.INACTIVE
         self.location = location
 
-    def as_json(self):
+    def serialize(self):
         super(PatientDevice, self)\
-            .as_json(location=self.location)
+            .serialize(location=self.location)
 
 
 class NurseDevice(Device):
     floor = Column(String(50))
     responses = relationship('Response',
                              order_by='Response.first_issued',
-                             primaryjoin='NurseDevice.id == '
-                             'Response.nursedevice')
+                             primaryjoin='NurseDevice.id == \
+                             Response.nursedevice')
     __mapper_args__ = {'polymorphic_identity': 'nursedevice'}
 
     def __init__(self, devicetype: String, floor: String):
@@ -68,13 +69,14 @@ class NurseDevice(Device):
         self.status = DeviceStatus.INACTIVE
         self.floor = floor
 
-    def as_json(self):
+    def serialize(self):
         super(NurseDevice, self)\
-            .as_json(floor=self.floor)
+            .serialize(floor=self.floor)
 
 
 class DeviceType(Base):
     __tablename__ = 'devicetypes'
+
     id = Column(String(32), primary_key=True)
     product_name = Column(String, nullable=False)
     product_description = Column(String, nullable=False)
@@ -84,13 +86,14 @@ class DeviceType(Base):
                            foreign_keys='Device.devicetype')
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    def as_json(self, **kwargs):
-        return json.dump({
-            'id': id,
+    def serialize(self, **kwargs):
+        return {
+            'id': self.id,
             'product_name': self.devicetype,
             'product_description': self.description,
             'devicetype': self.discriminator,
-            **kwargs})
+            **kwargs
+        }
 
 
 class NurseDeviceType(DeviceType):

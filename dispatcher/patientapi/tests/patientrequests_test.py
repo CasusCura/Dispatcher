@@ -1,6 +1,9 @@
 from unittest import TestCase
-import os
+import unittest
+import pdb
 import urllib
+import os
+from typing import Dict
 from tornado.options import options
 from tornado.httpserver import HTTPServer
 from tornado.httpclient import HTTPClient
@@ -10,22 +13,83 @@ from run import create_router
 from collections import OrderedDict
 
 
-from dispatcher.models import (PatientDevice,
+from dispatcher.models import (DeviceType,
+                               PatientDevice,
                                PatientDeviceType,
+                               NurseDevice,
+                               NurseDeviceType,
+                               Response,
                                RequestType,
                                Issue)
-# add application root to sys.path
-
-# convenience method to clear test database
-# In this example, we simple reapply APP_ROOT/db/schema.sql to test database
-
-# Create your base Test class.
-# Put all of your testing methods here.
 
 
-# Your TestHandler class
-# They are runnable via nosetests as well.
-class TestPatientHandler(TestCase):
+def create_patient_device_type(name: str='test_p_dev_t',
+                               desc: str='test',
+                               session=None):
+    p = PatientDeviceType(name, desc)
+    if session:
+        session.add(p)
+    return p
+
+
+def create_nurse_device_type(name: str='test_n_dev_t',
+                             desc: str='test',
+                             session=None):
+    p = NurseDeviceType(name, desc)
+    if session:
+        session.add(p)
+    return p
+
+
+def create_requesttype(device_type: PatientDeviceType,
+                       id: str='TEST',
+                       name: str='test_p_dev_t',
+                       desc: str='test',
+                       priority: int=0,
+                       session=None):
+    p = RequestType(id, name, desc, device_type.id, priority)
+    if session:
+        session.add(p)
+    return p
+
+
+def create_patient_device(device_type: DeviceType,
+                          location: str='test:1',
+                          session=None):
+    p = PatientDevice(device_type.id, location)
+    if session:
+        session.add(p)
+    return p
+
+
+def create_nurse_device(device_type: DeviceType,
+                        floor: str='test:1',
+                        session=None):
+    p = NurseDevice(device_type.id, floor)
+    if session:
+        session.add(p)
+    return p
+
+
+def create_response(device: NurseDevice,
+                    issue: Issue,
+                    eta: int,
+                    data: Dict,
+                    session=None):
+    p = Response(device.id, eta, issue.id, data)
+    if session:
+        session.add(p)
+    return p
+
+
+def create_issue(device: PatientDevice, request: RequestType, session=None):
+    iss = Issue(device.id, request.id, request.priority)
+    if session:
+        session.add(iss)
+    return iss
+
+
+class TestPatientHandler(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         from tornado_sqlalchemy import make_session_factory
@@ -34,77 +98,48 @@ class TestPatientHandler(TestCase):
 
         options.parse_config_file(
             os.path.join(APP_ROOT, 'config', 'testconfig.py'))
-
-        factory = make_session_factory(options.db)
-
-        # Assemble the tornado application with its submodules
-        app_router = None
-        try:
-            app_router = create_router()
-        except KeyError as e:
-            print(e)
-            exit(1)
+        self.factory = make_session_factory('sqlite:///:memory:')
+        app_router = create_router()
 
         http_server = HTTPServer(
             Dispatcher(
                 options,
                 app_router,
-                session_factory=factory))
+                session_factory=self.factory))
         http_server.listen(options.port)
-
-        print('dispatcher is running on localhost:%s' % options.port)
 
         self.instance = IOLoop.instance()
         self.instance.add_callback(IOLoop.instance().stop)
-        TestCase.__init__(self, *args, **kwargs)
+        unittest.TestCase.__init__(self, *args, **kwargs)
 
-    def setUp(self):
-        print('lol')
+    def setup(self):
+        raise KeyError()
         self.instance.start()
 
-    def tearDown(self):
+    def teardown(self):
+        raise KeyError()
         self.instance.stop()
 
     def get_session(self):
         return self.factory.make_session()
 
     def test_get_issue(self):
-        dev = None
-        iss = None
         sess = self.get_session()
-        newpatientdevt = PatientDeviceType('testpdevt',
-                                           'used to testing the code')
-        sess.add(newpatientdevt)
-        # Create new requests for this new device
-        pdid = newpatientdevt.id
-        newpreq1 = RequestType('ONE',
-                               'testone',
-                               'used to testing the code',
-                               pdid,
-                               0)
-        newpreq2 = RequestType('TWO',
-                               'testtwo',
-                               'used to testing the code',
-                               pdid,
-                               1)
-        sess.add(newpreq1)
-        sess.add(newpreq2)
-        # Create patient device
-        dev = PatientDevice(newpatientdevt.id, 'room:501')
-        sess.add(dev)
-        # Create Issue
-        iss = Issue(dev.id, newpreq1.id, newpreq1.priority)
-        sess.add(iss)
-        # Example on how to hit a particular handler as POST request.
-        # In this example, we want to test the redirect,
-        # thus follow_redirects is set to False
-
+        patient_type = create_patient_device_type(session=sess)
+        request = create_requesttype(patient_type, session=sess)
+        dev = create_patient_device(patient_type, session=sess)
+        iss = create_issue(dev, request, session=sess)
         param = OrderedDict(
             uuid=dev.id,
             issueid=iss.id,
         )
-        url = 'http://localhost:8000/patient/request?' + urllib.parse.urlencode(query=param)
+        sess.commit()
+        sess.close()
+
+        url = 'http://localhost:8000/patient/request?' + \
+            urllib.parse.urlencode(query=param)
         client = HTTPClient()
-        response = yield client.fetch(url)
-        self.assertEqual(200, response.code)
-        # On successful, response is expected to redirect to /tutoria
+        pdb.set_trace()
+        response = yield client.fetch(url, method='GET')
+        print(response.body)
+        self.assertTrue(False is True, msg='fuck')

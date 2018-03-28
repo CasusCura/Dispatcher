@@ -18,99 +18,76 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
         """Returns information for the current issue associated with this
         device."""
         print('HEHE')
+        # TODO: Validate uuid
         uuid = self.get_argument('uuid')
-        with self.make_session() as session:
-            q_issue = session.query(Issue).filter(Issue.patientdevice == uuid)
-            if len(q_issue.all()) == 0:
-                self.set_status(200)
-                self.finish()
-                return
-            elif len(q_issue.all()) >= 1:
-                self.writeout(q_issue.first().id)
-                self.set_status(200)
-            else:
-                self.set_status(500)
+        ret = self._get(uuid)
+        if ret['issue']:
+            self.set_status(200)
+            self.writeout(json.dump(ret))
+        else:
+            self.set_status(400)
+            self.writeout(json.dump(ret))
         self.finish()
+
+    def _get(self, uuid):
+        issue = None
+        with self.make_session() as session:
+            issue = session.query(Issue)\
+                .filter(Issue.patientdevice == uuid,
+                        Issue.status < 3)\
+                .first()
+        if issue:
+            return {
+                'status': 'OK',
+                'issue': issue.as_json(),
+                'code': 200,
+            }
+        return {
+            'status': 'BAD',
+            'issue': None,
+            'code': 400,
+        }
 
     def post(self):
-        """Adds request data or updates repeated issue."""
-        uuid = self.get_argument('uuid')
-        issue_id = self.get_argument('issueid')
-        data = self.get_argument('data')
-        with self.make_session() as session:
-            q_issue = session.query(Issue)\
-                .filter(Issue.patientdevice == uuid,
-                        Issue.status < 3,
-                        Issue.id == issue_id)
-            if len(q_issue.all()) == 0:
-                self.set_status(400)
-            elif len(q_issue.all()) >= 1:
-                issue = q_issue.first()
-                if data:
-                    requestdata = RequestData(uuid, issue.id, json.load(data))
-                    session.add(requestdata)
-                    self.set_status(201)
-                else:
-                    self.set_status(400)
-            else:
-                self.set_status(500)
-        self.finish()
-
-    def create(self):
         """Creates a new issue for this patient device."""
         # Get Variables
-        uuid = self.get_argument('uuid')
-        request_id = self.get_argument('rid')
+        uuid = self.get_argument('device_id')
+        request_id = self.get_argument('request_id')
         data = self.get_argument('data')
         # Verify Valid parameters
-        with self.make_session() as session:
-            q_device = session.query(Device)\
-                .filter(Device.patientdevice == uuid)
-            # Handle invalid uuid
-            if len(q_device.all()) != 1:
-                self.set_status(401)
-                self.finish()
-                return
-            device_type_id = q_device.first().devicetype.id
-            q_request_type = session.query(RequestType)\
-                .filter(RequestType.devicetype == device_type_id,
-                        RequestType.device_request_id == request_id)
-            # Handle invalid rid
-            if len(q_request_type.all()) != 1:
-                self.set_status(401)
-                self.finish()
-                return
-            request_type = q_request_type.first()
-            # Create Issue
-            issue = Issue(uuid, request_type.id, request_type.priority)
-            session.add(issue)
-            if data:
-                requestdata = RequestData(uuid, issue.id, json.load(data))
-                session.add(requestdata)
-            self.writeout(json.dump({'status': 'OK', 'issueid': issue.id, }))
-        self.set_status(201)
+        ret = self._post(uuid, request_id, data)
+        self.writeout(ret)
+        self.set_status(ret['code'])
         self.finish()
 
-    def delete(self):
-        """Cancels the active issue for this device."""
-        uuid = self.get_argument('uuid')
-        issueid = self.get_argument('issueid')
+    def _post(self, device_id, request_id, request_data):
+        device = None
+        request_type = None
+        issue = None
         with self.make_session() as session:
-            q_issue = session.query(Issue)\
-                .filter(Issue.id == issueid,
-                        Issue.patientdevice == uuid,
-                        Issue.status < 3)
-            if len(q_issue.all()) != 1:
-                self.set_status(400)
-                self.writeout(json.dump({'status': 'DENIED', }))
-                self.finish()
-                return
-            issue = q_issue.first()
-            issue.status = IssueStates.CANCELLED
-            self.set_status(202)
-            self.writeout(json.dump({'status': 'OK', }))
-        self.finish()
-        return
+            device = session.query(Device)\
+                .filter(Device.patientdevice == device_id)\
+                .first()
+            if device:
+                request_type = session.query(RequestType)\
+                    .filter(RequestType.devicetype == device.devicetype.id,
+                            RequestType.device_request_id == request_id)\
+                    .all()
+            # Handle invalid rid
+            if len(request_type.all()) != 1:
+                return {'status': 'BAD', 'code': 400}
+            request_type = request_type.first()
+            # Create Issue
+            issue = Issue(device_id, request_type.id, request_type.priority)
+            session.add(issue)
+            if request_data:
+                requestdata = RequestData(device_id, issue.id,
+                                          json.load(request_data))
+                session.add(requestdata)
+        if issue:
+            return {'status': 'OK', 'issueid': issue.id, }
+        else:
+            return {'status': 'BAD', 'code': 400}
 
     def update(self):
         """Adds request data or updates repeated issue."""
@@ -141,3 +118,26 @@ class PatientTestHandler(RequestHandler, SessionMixin):
     def get(self):
         self.set_status(200)
         self.finish()
+
+
+class PatientDeleteHandler(RequestHandler, SessionMixin):
+    def post(self):
+        """Cancels the active issue for this device."""
+        uuid = self.get_argument('uuid')
+        issueid = self.get_argument('issueid')
+        with self.make_session() as session:
+            q_issue = session.query(Issue)\
+                .filter(Issue.id == issueid,
+                        Issue.patientdevice == uuid,
+                        Issue.status < 3)
+            if len(q_issue.all()) != 1:
+                self.set_status(400)
+                self.writeout(json.dump({'status': 'DENIED', }))
+                self.finish()
+                return
+            issue = q_issue.first()
+            issue.status = IssueStates.CANCELLED
+            self.set_status(200)
+            self.writeout(json.dump({'status': 'OK', }))
+        self.finish()
+        return
