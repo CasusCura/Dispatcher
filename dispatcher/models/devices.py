@@ -26,6 +26,7 @@ class Device(Base):
     __mapper_args__ = {'polymorphic_on': used_by}
 
     def serialize(self, **kwargs):
+        id = str(self.id)[1:-1]
         return {
             'id': id,
             'devicetype': self.devicetype,
@@ -87,8 +88,9 @@ class DeviceType(Base):
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     def serialize(self, **kwargs):
+        id = str(self.id)[2:-1]
         return {
-            'id': self.id,
+            'id': id,
             'product_name': self.product_name,
             'product_description': self.product_description,
             'used_by': self.discriminator,
@@ -100,10 +102,10 @@ class NurseDeviceType(DeviceType):
     __mapper_args__ = {'polymorphic_identity': 'nurse'}
     devices = relationship('Device')
 
-    def __init__(self, name: String, description: String):
+    def __init__(self, product_name: String, product_description: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.product_name = name
-        self.product_description = description
+        self.product_name = product_name
+        self.product_description = product_description
 
 
 class PatientDeviceType(DeviceType):
@@ -111,7 +113,7 @@ class PatientDeviceType(DeviceType):
     devices = relationship('Device')
     __mapper_args__ = {'polymorphic_identity': 'patient'}
 
-    def __init__(self, name: String, description: String):
+    def __init__(self, product_name: String, product_description: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.product_name = name
-        self.product_description = description
+        self.product_name = product_name
+        self.product_description = product_description

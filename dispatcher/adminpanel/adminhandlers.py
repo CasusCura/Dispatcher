@@ -7,7 +7,8 @@ from dispatcher.models import (Device,
                                NurseDevice,
                                NurseDeviceType,
                                PatientDevice,
-                               PatientDeviceType)
+                               PatientDeviceType,
+                               RequestType)
 import json
 
 
@@ -120,8 +121,10 @@ class DevicesHandler(RequestHandler, SessionMixin):
         """GET - returns all devices who's status satisfy the filter."""
         device_status = self.get_argument('devicestatus', None)
         used_by = self.get_argument('used_by', None)
+        print('used_by')
+        print(used_by is 'patient')
         ret = None
-        if device_status:
+        if used_by:
             ret = self._get(device_status, used_by)
         else:
             ret = {
@@ -135,6 +138,7 @@ class DevicesHandler(RequestHandler, SessionMixin):
 
     def _get(self, status, used_by):
         devices = None
+        print(used_by)
         with self.make_session() as session:
             baked_query = None
             if used_by is 'nurse':
@@ -143,7 +147,11 @@ class DevicesHandler(RequestHandler, SessionMixin):
                 baked_query = session.query(PatientDevice)
             else:
                 baked_query = session.query(Device)
-            devices = baked_query.filter(Device.status == status).all()
+            if status:
+                devices = baked_query.filter(Device.status == status).all()
+            else:
+                devices = baked_query.all()
+
         if devices is not None:
             return {
                 'status': 'OK',
@@ -162,16 +170,26 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
     """Handles returning and creating new device types."""
     def get(self):
         """Handle get requests when an id is provided."""
-        id = self.get_argument('id', None)
+        id = None
         ret = None
-        if id:
-            ret = self._get(id)
-        else:
+        try:
+            data = json.loads(self.request.body)
+            id = data['id']
+        except KeyError as ke:
             ret = {
                 'status': 'BAD',
                 'code': 400,
                 'error': 'No id provided',
             }
+        except Exception as e:
+            ret = {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'Body not valid json',
+            }
+        if id:
+            ret = self._get(id)
+
         self.set_status(ret['code'])
         self.write(ret)
         self.finish()
@@ -196,7 +214,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
             }
 
     def post(self):
-        """Hanldes creating/updating a new device type."""
+        """Handles creating/updating a new device type."""
         data = json.loads(self.request.body)
         ret = None
         device_type = None
@@ -231,24 +249,29 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         self.write(ret)
         self.finish()
 
-    def _post(self, used_by, **device_type):
+    def _post(self, used_by, params):
         """Inserts the new devicetype"""
         device_type = None
         if 'id' in device_type:
             id = device_type['id']
             with self.make_session() as session:
                 if used_by is 'nurse':
-                    device_type = session.query(PatientDeviceType)\
-                        .filter_by(id=id)\
-                        .update(device_type)
+                    device_type = session.query(NurseDeviceType)\
+                        .filter_by(id=id).first()
+                    device_type.update(
+                        product_name=params['product_name'],
+                        product_description=params['product_description'])
                 elif used_by is 'patient':
                     device_type = session.query(PatientDeviceType)\
-                        .filter_by(id=id)\
-                        .update(device_type)
+                        .filter_by(id=id).first()
+                    device_type.product_name = params['product_name'],
+                    device_type.product_description = \
+                        params['product_description']
                 if device_type:
                     return {
                         'status': 'OK',
-                        'code': 204
+                        'devicetype_id': device_type.id,
+                        'code': 200,
                     }
                 else:
                     return {
@@ -257,6 +280,21 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
                         'error': 'CSGames was an inside job',
                     }
         else:
+            with self.make_session() as session:
+                e = DeviceType
+                if used_by is 'nurse':
+                    e = NurseDeviceType
+                elif used_by is 'patient':
+                    e = PatientDeviceType
+                device_type = e(
+                    product_name=params['product_name'],
+                    product_description=params['product_description'])
+                session.add(device_type)
+            if device_type:
+                return {
+                    'status': 'OK',
+                    'code': 200,
+                }
             return {
                 'status': 'BAD',
                 'code': 400,
@@ -266,10 +304,10 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
 
 class DeviceTypesHandler(RequestHandler, SessionMixin):
     def get(self):
-        id = self.get_argument('used_by', None)
+        used_by = self.get_argument('used_by', None)
         ret = None
-        if id:
-            ret = self._get(id)
+        if used_by:
+            ret = self._get(str(used_by))
         else:
             ret = {
                 'status': 'BAD',
@@ -281,7 +319,9 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
         self.finish()
 
     def _get(self, used_by):
-        device_types = None
+        device_types_json = None
+
+        print(used_by)
         with self.make_session() as session:
             if used_by is 'nurse':
                 device_types = session.query(NurseDeviceType).all()
@@ -289,11 +329,14 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
                 device_types = session.query(PatientDeviceType).all()
             else:
                 device_types = session.query(DeviceType).all()
-        if device_types is not None:
+            device_types_json = [d_t.serialize() for d_t in device_types]
+            print(device_types_json)
+        if device_types_json:
+
             return {
                 'status': 'OK',
                 'code': 200,
-                'device_types': device_types,
+                'device_types': device_types_json,
             }
         else:
             return {

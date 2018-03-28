@@ -55,7 +55,7 @@ class Issue(Base):
     def serialize(self, **kwargs):
         return {
             'id': self.id,
-            'patientdevice': self.devicetype,
+            'patientdevice': self.patientdevice,
             'requesttype': self.description,
             'priority': self.discriminator,
             'status': self.status,
@@ -93,10 +93,10 @@ class Response(Base):
     def serialize(self, **kwargs):
         return {
             'id': self.id,
-            'issueid': self.devicetype,
-            'nursedevice': self.description,
-            'first_issued': self.discriminator,
-            'time_updated': self.status,
+            'issueid': self.issueid,
+            'nursedevice': self.nursedevice,
+            'first_issued': self.first_issued,
+            'time_updated': self.time_updated,
             'last_eta': self.last_eta,
             'data': self.data
         }
@@ -124,10 +124,10 @@ class RequestData(Base):
     def serialize(self, **kwargs):
         return {
             'id': self.id,
-            'issueid': self.devicetype,
-            'nursedevice': self.description,
-            'patientdevice': self.discriminator,
-            'timestamp': self.status,
+            'issueid': self.issueid,
+            'nursedevice': self.nursedevice,
+            'patientdevice': self.patientdevice,
+            'timestamp': self.timestamp,
             'data': self.data
         }
 
