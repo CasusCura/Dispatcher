@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="res/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="res/admin.js"></script>
+		<script type="text/javascript" src="res/datatables/datatables.min.js"></script>
+		<script async type="text/javascript" src="res/bulma.js"></script>
+		
+		<link rel="stylesheet" type="text/css" href="res/datatables/datatables.min.css"></link>
+		<link rel="stylesheet" type="text/css" href="res/bulma.css"></link>
+		<link rel="icon" type="image/png" href="favicon.ico" />
+		
+		<title>SVH Admin Panel</title>
+	</head>
+	
+	<body>
+
+		<!-- START NAV -->
+		<nav class="navbar is-white">
+			<div class="container">
+				<div class="navbar-brand">
+					<a class="navbar-item brand-text" href="../">
+						Home          
+					</a>
+					<div class="navbar-burger burger" data-target="navMenu">
+					</div>
+				</div>
+				<div id="navMenu" class="navbar-menu">
+					<div class="navbar-start">
+						<a class="navbar-item" href="admin.html">
+							Patient Devices
+						</a>
+						<a class="navbar-item" href="admin.html">
+							Nurse Devices
+						</a>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<!-- The page -->
+		<div class="container">
+			<div class="columns">
+				<div class="column is-3">
+					<aside class="menu">
+						<p class="menu-label">
+							Patient Devices
+						</p>
+						<ul class="menu-list">
+							<li><a id="ALL" class="is-active" onclick="filterTable('ALL')">All</a></li>
+							<li><a id="ACTIVE" onclick="filterTable('ACTIVE')">Active</a></li>
+							<li><a id="INACTIVE" onclick="filterTable('INACTIVE')">Inactive</a></li>
+							<li><a id="DEACTIVATED" onclick="filterTable('DEACTIVATED')">Deactivated</a></li>
+							<li><a id="RETIRED" onclick="filterTable('RETIRED')">Retired</a></li>
+						</ul>
+						<p class="menu-label">
+							Administration
+						</p>
+						<ul class="menu-list">
+							<li><a href="#" onclick="openManageDeviceTypeModal()">Manage Device Types</a></li>
+							<li><a href="#" onClick="openAddDeviceModal()">Add New Patient Device</a></li>
+						</ul>
+					
+					</aside>
+				</div>
+				<div class="column is-9">
+					<table id="deviceTable">
+						<thead>
+							<tr>
+								<th> Device Id</th>
+								<th> Device Type</th>
+								<th> Device Status</th>
+								<th> Device Location</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+	<!-- device edit modal -->
+		<div class="modal" id="DeviceEditModal">
+			<div class="modal-background" onClick="closeModal()"></div>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<p class="modal-card-title">Device Edit</p>
+					<button class="delete" aria-label="close" onClick="closeModal()"></button>
+				</header>
+				<section class="modal-card-body">
+					<div class="field">
+						<label class="label">Device Id</label>
+						<div class="control">
+							<input id="id" class="input" type="text" >
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Device Type</label>
+						<div class="control">
+							<input id="devicetype" class="input" type="text" >
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Location</label>
+						<div class="control">
+							<input id="location" class="input" type="text" >
+						</div>
+					</div>
+					
+					<div class="field">
+					<label class="label">Status</label>
+						<div  class="select">
+							<select id="status">
+								<option value="ACTIVE">Active</option>
+								<option value="INACTIVE">Inactive</option>
+								<option value="DEACTIVATED">Deactivated</option>
+								<option value="RETIRED">Retired</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label">User Name</label>
+						<div class="control">
+							<input id="username" class="input" type="text" readonly>
+						</div>
+					</div>
+					<div class="field">
+						<label class="label">Password</label>
+						<div class="control">
+							<input id="password" class="input" type="text" readonly>
+						</div>
+					</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button" onClick="closeModal()">Cancel</button>
+				</footer>
+			</div>
+		</div>
+	
+	<!-- Add new patient device modal -->
+			<div class="modal" id="addDeviceModal">
+			<div class="modal-background" onClick="closeModal()"></div>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<p class="modal-card-title">Add New Patient Device</p>
+					<button class="delete" aria-label="close" onClick="closeModal()"></button>
+				</header>
+				<section class="modal-card-body">
+					<div class="field">
+					<label class="label">Device Type</label>
+						<div  class="select">
+							<select id="selectAddNewDeviceType">
+							</select>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label">Device Id</label>
+						<div class="control">
+							<input id="deviceId" class="input" type="text" >
+						</div>
+					</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-success" onClick="addNewPatientDevice()">Save changes</button>
+					<button class="button" onClick="closeModal()">Cancel</button>
+				</footer>
+			</div>
+		</div>
+
+
+	<!-- Manage device types modal -->
+		<div class="modal" id="manageDeviceTypesModal">
+			<div class="modal-background" onClick="closeModal()"></div>
+			<div class="modal-card">
+				<header class="modal-card-head">
+					<p class="modal-card-title">Manage Device Types</p>
+					<button class="delete" aria-label="close" onClick="closeModal()"></button>
+				</header>
+				<section class="modal-card-body" id="deviceTypesBody">
+					<div class="field">
+						<label class="label">Existing Device Types</label>
+						<div class="select">
+							<select id="selectManageDeviceTypes" onchange="deviceTypeSelectChange()">
+								<option>[Add a New Device Type]</option>
+							</select>
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Device Type</label>
+						<div class="control">
+							<input id="deviceType" class="input" type="text">
+						</div>
+					</div>
+					
+					<div class="field">
+						<label class="label">Short Description</label>
+						<div class="control">
+							<input id="shortDescription" class="input" type="text">
+						</div>
+					</div>
+					
+					<div class="control" id="deviceAlert">
+						
+					</div>
+					
+					<div class="field">
+						<div class="control">
+							<button class="button is-link" onClick="addAlertDiv()">Add Another Alert Type</button>
+						</div>
+					</div>
+				</section>
+				<footer class="modal-card-foot">
+					<button class="button is-success" onClick="updateDeviceType()">Save changes</button>
+					<button class="button" onClick="closeModal()">Cancel</button>
+				</footer>
+			</div>
+		</div>
+	</body>
+</html>
