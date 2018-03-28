@@ -214,7 +214,7 @@ function populateManageDeviceTypeSelect(){
 	$.ajax({
 		type: "GET",
 		url: 'devicetypes',
-		data: "",
+		data: "id=ALL",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
@@ -254,7 +254,7 @@ function populateAddDeviceTypeSelect(){
 	$.ajax({
 		type: "GET",
 		url: 'devicetypes',
-		data: "used_by=patient",
+		data: "used_by=patient&id=ALL",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
