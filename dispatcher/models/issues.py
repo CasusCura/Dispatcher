@@ -49,14 +49,12 @@ class Issue(Base):
         self.priority = priority
         self.status = IssueStates.PENDING
 
-    def __str__(self):
-        return self.serialize()
-
     def serialize(self, **kwargs):
         return {
             'id': self.id,
-            'patientdevice': self.patientdevice,
-            'requesttype': self.description,
+            'location': self.device.location,
+            'name': self.request_type.device_request_id,
+            'description': self.request_type.description,
             'priority': self.discriminator,
             'status': self.status,
         }

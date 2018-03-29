@@ -21,7 +21,7 @@ class PanelHandler(RequestHandler, SessionMixin):
 class DeviceHandler(RequestHandler, SessionMixin):
     def get(self):
         """Get all values for a given device"""
-        id = self.get_argument('id', None)
+        id = self.get_argument('device_id', None)
         ret = None
         if id:
             ret = self._get(id.encode())
@@ -72,8 +72,8 @@ class DeviceHandler(RequestHandler, SessionMixin):
         self.finish()
 
     def _post(self, params):
-        if 'id' in params:
-            id = params['id'].encode()
+        if 'device_id' in params:
+            id = params['device_id'].encode()
             with self.make_session() as session:
                 device = None
                 if params['used_by'] == 'nurse':
@@ -179,7 +179,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
     """Handles returning and creating new device types."""
     def get(self):
         """Handle get requests when an id is provided."""
-        id = self.get_argument('id', None)
+        id = self.get_argument('device_type_id', None)
         ret = None
         if id:
             ret = self._get(id.encode())
@@ -254,8 +254,8 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
     def _post(self, params):
         """Inserts the new devicetype"""
         device_type = None
-        if 'id' in params:
-            id = params['id'].encode()
+        if 'device_type_id' in params:
+            id = params['device_type_id'].encode()
             with self.make_session() as session:
                 if params['used_by'] is 'nurse':
                     device_type = session.query(NurseDeviceType)\
@@ -275,7 +275,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
                 if device_type:
                     return {
                         'status': 'OK',
-                        'devicetype_id': device_type.id,
+                        'device_type_id': device_type.id,
                         'code': 200,
                     }
                 else:
@@ -349,7 +349,7 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
     """Handles returning and creating new request types."""
     def get(self):
         """Handle get requests when an id is provided."""
-        id = self.get_argument('id', None)
+        id = self.get_argument('request_type_id', None)
         ret = None
         if id:
             ret = self._get(id.encode())
@@ -384,7 +384,7 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
         }
 
     def post(self):
-        """Handles creating/updating a new device type."""
+        """Handles creating/updating a new Request type."""
         ret = None
         request_type = None
         try:
@@ -421,8 +421,8 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
     def _post(self, params):
         """Inserts the new devicetype"""
         request_type = None
-        if 'id' in params:
-            id = params['id'].encode()
+        if 'device_type_id' in params:
+            id = params['request_type_id'].encode()
             with self.make_session() as session:
                 request_type = session.query(RequestType)\
                     .filter_by(id=id)\

@@ -162,6 +162,7 @@ function updateDeviceType(){
 	if(selectedDeviceType!='[Add a New Device Type]'){
 
 		deviceTypeId = '"device_type_id":"'+element.options[element.selectedIndex].value+'",';
+
 	}
 	var alertTypes = document.getElementById("deviceAlert").children;
 
