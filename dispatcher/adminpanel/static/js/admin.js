@@ -300,7 +300,7 @@ function deviceTypeSelectChange(){
 function addNewPatientDevice(){
 	var element = document.getElementById("selectAddNewDeviceType");
 	var selectedDeviceType = element.options[element.selectedIndex].value;
-	var serial = document.getElementById("serial").value;
+	var serial = document.getElementById("newSerial").value;
 
 	var deviceDetails = '{"device":{"serial":"'+serial+'","used_by":"patient", "device_type":"' + selectedDeviceType + '", "status":"INACTIVE"}}';
 
