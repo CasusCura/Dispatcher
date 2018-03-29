@@ -44,14 +44,14 @@ function filterTable(filter){
 
 	$.ajax({
 		type: "GET",
-		url: 'devices',
+		url: '../devices',
 		data: "used_by=nurse&status="+filter,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
 			$.each(data.devices, function (index, device) {
 				table.row.add([
-					device.serial_number, device.devicetype, device.status, device.location, device.id
+					device.serial_number, device.devicetype, device.status, device.floor, device.id
 				]);
 				table.draw();
 			});
@@ -68,7 +68,7 @@ function populateDeviceEditDialog(devId){
 
 	$.ajax({
 		type: "GET",
-		url: 'device',
+		url: '../device',
 		data: "device_id=" + devId,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -96,7 +96,7 @@ function updatenurseDev(){
 
 		$.ajax({
 		type: "POST",
-		url: 'device',
+		url: '../device',
 		data: deviceDetails,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -167,7 +167,7 @@ function updateDeviceType(){
 
 	$.ajax({
 		type: "POST",
-		url: 'devicetype',
+		url: '../devicetype',
 		data: json,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -195,7 +195,7 @@ function populateManageDeviceTypeSelect(){
 
 	$.ajax({
 		type: "GET",
-		url: 'devicetypes',
+		url: '../devicetypes',
 		data: "used_by=nurse",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -223,7 +223,7 @@ function populateAddDeviceTypeSelect(){
 
 	$.ajax({
 		type: "GET",
-		url: 'devicetypes',
+		url: '../devicetypes',
 		data: "used_by=nurse",
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -253,7 +253,7 @@ function deviceTypeSelectChange(){
 	//Get the data for the selected device type and populate the inputs
 		$.ajax({
 		type: "GET",
-		url: 'devicetype',
+		url: '../devicetype',
 		data: "device_type_id="+selectedDeviceId,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -271,13 +271,13 @@ function deviceTypeSelectChange(){
 function addNewNurseDevice(){
 	var element = document.getElementById("selectAddNewDeviceType");
 	var selectedDeviceType = element.options[element.selectedIndex].value;
-	var serial = document.getElementById("serial").value;
+	var serial = document.getElementById("newSerial").value;
 
 	var deviceDetails = '{"device":{"serial":"'+serial+'","used_by":"nurse", "device_type":"' + selectedDeviceType + '", "status":"INACTIVE"}}';
 
 		$.ajax({
 		type: "POST",
-		url: 'device',
+		url: '../device',
 		data: deviceDetails,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
