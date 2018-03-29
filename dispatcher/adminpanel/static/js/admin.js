@@ -99,7 +99,7 @@ function populateDeviceEditDialog(devId){
 
 //POST updated details of a device to the service (or add a new device)
 function updatePatientDev(){
-	var deviceDetails = '{"used_by":"patient","device":{"id":"'+document.getElementById("id").value+'", "status":"'+ document.getElementById("status").value+'","location":"'+document.getElementById("location").value+'"}}';
+	var deviceDetails = '{"device":{"used_by":"patient","id":"'+document.getElementById("id").value+'", "status":"'+ document.getElementById("status").value+'","location":"'+document.getElementById("location").value+'"}}';
 
 		$.ajax({
 		type: "POST",
@@ -293,7 +293,7 @@ function addNewPatientDevice(){
 	var selectedDeviceType = element.options[element.selectedIndex].innerHTML;
 	var serial = document.getElementById("serial").value;
 
-	var deviceDetails = '{"serial":"'+serial+'","used_by":"patient", "device_type":"' + selectedDeviceType + '", "status":"INACTIVE"}';
+	var deviceDetails = '{"device":{"serial":"'+serial+'","used_by":"patient", "device_type":"' + selectedDeviceType + '", "status":"INACTIVE"}}';
 
 		$.ajax({
 		type: "POST",
