@@ -183,7 +183,7 @@ function updateDeviceType(){
 				var name = inputs[1].value;
 				var description = inputs[3].value;
 				var priority = inputs[5].value;
-				alerts.push('{"device_type_id":"'+deviceTypeId+'","request_id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
+				alerts.push('{"device_type_id":"'+deviceTypeId+'","request_type_id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
 			});
 			$.each(alerts, function(k,v){
 
