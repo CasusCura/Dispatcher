@@ -1,8 +1,7 @@
 from tornado.web import RequestHandler
-from sqlalchemy.ext import baked
-from sqlalchemy import bindparam
 from tornado_sqlalchemy import SessionMixin
 from dispatcher.models import (Device,
+                               DeviceStatus,
                                DeviceType,
                                NurseDevice,
                                NurseDeviceType,
@@ -119,7 +118,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
 class DevicesHandler(RequestHandler, SessionMixin):
     def get(self):
         """GET - returns all devices who's status satisfy the filter."""
-        device_status = self.get_argument('devicestatus', None)
+        device_status = self.get_argument('status', None)
         used_by = self.get_argument('used_by', None)
         ret = None
         if used_by:
@@ -137,6 +136,7 @@ class DevicesHandler(RequestHandler, SessionMixin):
     def _get(self, status, used_by):
         device_json = None
         with self.make_session() as session:
+            print(DeviceStatus[status].value)
             baked_query = None
             if used_by is 'nurse':
                 baked_query = session.query(NurseDevice)
@@ -145,7 +145,9 @@ class DevicesHandler(RequestHandler, SessionMixin):
             else:
                 baked_query = session.query(Device)
             if status:
-                devices = baked_query.filter(Device.status == status).all()
+                devices = baked_query\
+                    .filter(Device.status == DeviceStatus[status].value)\
+                    .all()
             else:
                 devices = baked_query.all()
             print(devices)
@@ -168,25 +170,16 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
     """Handles returning and creating new device types."""
     def get(self):
         """Handle get requests when an id is provided."""
-        id = None
+        id = self.get_argument('id', None)
         ret = None
-        try:
-            data = json.loads(self.request.body)
-            id = data['id']
-        except KeyError as ke:
+        if id:
+            ret = self._get(id)
+        else:
             ret = {
                 'status': 'BAD',
                 'code': 400,
                 'error': 'No id provided',
             }
-        except Exception as e:
-            ret = {
-                'status': 'BAD',
-                'code': 400,
-                'error': 'Body not valid json',
-            }
-        if id:
-            ret = self._get(id)
 
         self.set_status(ret['code'])
         self.write(ret)

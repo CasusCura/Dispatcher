@@ -45,7 +45,7 @@ function filterTable(filter){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			$.each(data.deviceArray, function (index, device) {
+			$.each(data.devices, function (index, device) {
 				table.row.add([
 					device.id, device.devicetype, device.status, device.location
 				]);

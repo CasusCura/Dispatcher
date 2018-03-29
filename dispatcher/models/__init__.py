@@ -6,6 +6,7 @@ from dispatcher.models.issues import (Issue,
                                       RequestData,
                                       RequestType)
 from dispatcher.models.devices import (Device,
+                                       DeviceStatus,
                                        PatientDevice,
                                        NurseDevice,
                                        DeviceType,

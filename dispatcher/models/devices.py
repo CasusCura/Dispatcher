@@ -13,9 +13,6 @@ class DeviceStatus(enum.Enum):
     DEACTIVATED = 2
     RETIRED = 3
 
-    def __str__(self):
-        return str(self).split('.')[1]
-
 
 class Device(Base):
     """Represents any device that needs to have credentials managed for
@@ -29,7 +26,7 @@ class Device(Base):
     __mapper_args__ = {'polymorphic_on': used_by}
 
     def serialize(self, **kwargs):
-        id = str(self.id)[1:-1]
+        id = str(self.id)[2:-1]
         devicetype = str(self.devicetype)[1:-1]
         return {
             'id': id,
