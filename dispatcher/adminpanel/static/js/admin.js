@@ -5,7 +5,7 @@ $(document).ready(function(){
 	table = $('#deviceTable').DataTable();
 
 	//Populate the table of all devices (default to 'ACTIVE')
-	filterTable("ALL");
+
 
 	//Make the table click-able
 	$('#deviceTable tbody').on( 'click', 'tr', function () {
@@ -17,6 +17,8 @@ $(document).ready(function(){
 			openDeviceModal(table.row( this ).data()[0]);
 		}
 	});
+
+	filterTable("ALL");
 
 	addAlertDiv();
 })
@@ -32,11 +34,12 @@ function filterTable(filter){
 		document.getElementById("DEACTIVATED").className="";
 		document.getElementById("RETIRED").className="";
 		event.currentTarget.className = "is-active";
+		filter=event.currentTarget.id;
 	}
 
 	table.clear();
 
-		filter=event.currentTarget.id;
+		
 
 	$.ajax({
 		type: "GET",
@@ -49,6 +52,7 @@ function filterTable(filter){
 				table.row.add([
 					device.id, device.devicetype, device.status, device.location
 				]);
+				table.draw();
 			});
 		},
 		error: function (msg) {
@@ -63,7 +67,6 @@ function filterTable(filter){
 			});*/
 		}
 	});
-	table.draw();
 }
 
 //Fetch the details of the specified device from the service
@@ -219,26 +222,15 @@ function populateManageDeviceTypeSelect(){
 		dataType: "json",
 		success: function (data) {
 
-			$.each(data.devicetypes, function(k,v){
+			$.each(data.device_types, function(k,v){
 				var option = document.createElement("option");
-				option.value=v.product;
-				option.innerHTML=v.product;
+				option.value=v.id;
+				option.innerHTML=v.product_name;
 				document.getElementById("selectManageDeviceTypes").appendChild(option);
 			});
 		},
 		error: function (msg) {
-			//Temp JSON
 			alert(msg);
-			msg='{"deviceTypes":["push button detection", "auto fall detection", "HALP"]}';
-			var jsonMSG=JSON.parse(msg);
-			/*$.each(jsonMSG, function (k, v) {
-				$.each(v, function (num, deviceType){
-					var option = document.createElement("option");
-					option.value=deviceType;
-					option.innerHTML=deviceType;
-					document.getElementById("selectManageDeviceTypes").appendChild(option);
-				});
-			});*/
 		}
 	});
 }
@@ -259,24 +251,13 @@ function populateAddDeviceTypeSelect(){
 		success: function (data) {
 			$.each(data.devicetypes, function(k,v){
 				var option = document.createElement("option");
-				option.value=v.product;
-				option.innerHTML=v.product;
+				option.value=v.id;
+				option.innerHTML=v.product_name;
 				document.getElementById("selectManageDeviceTypes").appendChild(option);
 			});
 		},
 		error: function (msg) {
-			//Temp JSON
 			alert(msg);
-			/*msg='{"deviceTypes":["push button detection", "auto fall detection", "HALP"]}';
-			var jsonMSG=JSON.parse(msg);
-			$.each(jsonMSG, function (k, v) {
-				$.each(v, function (num, deviceType){
-					var option = document.createElement("option");
-					option.value=deviceType;
-					option.innerHTML=deviceType;
-					document.getElementById("selectAddNewDeviceType").appendChild(option);
-				});
-			});*/
 		}
 	});
 }
@@ -289,11 +270,12 @@ function deviceTypeSelectChange(){
 		document.getElementById("shortDescription").value="";
 		return;
 	}
+	var selectedDeviceId = element.options[element.selectedIndex].value;
 	//Get the data for the selected device type and populate the inputs
 		$.ajax({
 		type: "GET",
 		url: 'devicetype',
-		data: "",
+		data: "id="+selectedDeviceId,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
@@ -306,11 +288,6 @@ function deviceTypeSelectChange(){
 		error: function (msg) {
 			//Temp JSON
 			alert(msg);
-			msg='{"deviceType":"auto fall detection","shortDescription":"An accelerometer-based fall detection bracelet"}';
-			var jsonMSG=JSON.parse(msg);
-			$.each(jsonMSG, function (k, v) {
-				document.getElementById(k).value=v;
-			});
 		}
 	});
 }
