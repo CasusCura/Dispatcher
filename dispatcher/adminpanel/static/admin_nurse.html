@@ -43,7 +43,7 @@
 				<div class="column is-3">
 					<aside class="menu">
 						<p class="menu-label">
-							Patient Devices
+							Nurse Devices
 						</p>
 						<ul class="menu-list">
 							<li><a id="ALL" class="is-active" onclick="filterTable('ALL')">All</a></li>
@@ -57,7 +57,7 @@
 						</p>
 						<ul class="menu-list">
 							<li><a href="#" onclick="openManageDeviceTypeModal()">Manage Device Types</a></li>
-							<li><a href="#" onClick="openAddDeviceModal()">Add New Patient Device</a></li>
+							<li><a href="#" onClick="openAddDeviceModal()">Add New Nurse Device</a></li>
 						</ul>
 
 					</aside>
@@ -143,18 +143,18 @@
 					</div>
 				</section>
 				<footer class="modal-card-foot">
-					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button is-success" onClick="updateNurseDev()">Save changes</button>
 					<button class="button" onClick="closeModal()">Cancel</button>
 				</footer>
 			</div>
 		</div>
 
-	<!-- Add new patient device modal -->
+	<!-- Add new nurse device modal -->
 			<div class="modal" id="addDeviceModal">
 			<div class="modal-background" onClick="closeModal()"></div>
 			<div class="modal-card">
 				<header class="modal-card-head">
-					<p class="modal-card-title">Add New Patient Device</p>
+					<p class="modal-card-title">Add New Nurse Device</p>
 					<button class="delete" aria-label="close" onClick="closeModal()"></button>
 				</header>
 				<section class="modal-card-body">
@@ -174,7 +174,7 @@
 					</div>
 				</section>
 				<footer class="modal-card-foot">
-					<button class="button is-success" onClick="addNewPatientDevice()">Save changes</button>
+					<button class="button is-success" onClick="addNewNurseDevice()">Save changes</button>
 					<button class="button" onClick="closeModal()">Cancel</button>
 				</footer>
 			</div>
@@ -213,15 +213,6 @@
 						</div>
 					</div>
 
-					<div class="control" id="deviceAlert">
-
-					</div>
-
-					<div class="field">
-						<div class="control">
-							<button class="button is-link" onClick="addAlertDiv()">Add Another Alert Type</button>
-						</div>
-					</div>
 				</section>
 				<footer class="modal-card-foot">
 					<button class="button is-success" onClick="updateDeviceType()">Save changes</button>
@@ -229,7 +220,7 @@
 				</footer>
 			</div>
 		</div>
-		<script type="text/javascript" src="js/admin.js"></script>
+		<script type="text/javascript" src="js/admin_nurse.js"></script>
 
 	</body>
 </html>
