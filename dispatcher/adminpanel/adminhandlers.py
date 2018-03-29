@@ -398,6 +398,7 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
                 'error': 'Missing parameters',
             }
         except Exception as e:
+            raise e
             ret = {
                 'status': 'BAD',
                 'code': 400,
@@ -450,6 +451,7 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
                         params['device_request_id'],
                         params['name'],
                         params['description'],
+                        params['device_type'],
                         params['priority'])
                 session.add(request_type)
                 return {

@@ -172,10 +172,6 @@ function updateDeviceType(){
 		dataType: "json",
 		success: function (data) {
 			deviceTypeId=data.devicetype_id;
-			alert(deviceTypeId);
-			alert("DING");	
-
-
 
 			var alerts=[];
 
@@ -184,15 +180,14 @@ function updateDeviceType(){
 				var name = inputs[1].value;
 				var description = inputs[3].value;
 				var priority = inputs[5].value;
-				alert(deviceTypeId);
-				alerts.push('{"devicetype":"'+deviceTypeId+'",request_id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
+				alerts.push('{"devicetype":"'+deviceTypeId+'","request_id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
 			});
 			$.each(alerts, function(k,v){
 
 				$.ajax({
 					type: "POST",
 					url: 'requesttype',
-					data: v,
+					data: '{"request_type":'+v+'}',
 					contentType: "application/json; charset=utf-8",
 					dataType: "json",
 					success: function (data) {
