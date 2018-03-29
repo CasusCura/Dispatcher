@@ -50,21 +50,13 @@ function filterTable(filter){
 		success: function (data) {
 			$.each(data.devices, function (index, device) {
 				table.row.add([
-					device.id, device.devicetype, device.status, device.location
+					device.serial, device.devicetype, device.status, device.location
 				]);
 				table.draw();
 			});
 		},
 		error: function (msg) {
 			alert(msg);
-			//TODO rm -rf & add notify user
-			msg='{ "deviceArray":[{"id":"dev1","devicetype":"autoFallDetection","status":"active","location":"Narnia"},{"id":"dev12","devicetype":"ManualFallDetection","status":"active","location":"Mordor"}]}';
-			var jsonMSG=JSON.parse(msg);
-			/*$.each(jsonMSG.deviceArray, function (deviceArray, device) {
-				table.row.add([
-					device.id, device.devicetype, device.status, device.location
-				]);
-			});*/
 		}
 	});
 	table.draw();
@@ -159,11 +151,18 @@ function updateDeviceType(){
 	var devType = document.getElementById("deviceType").value;
 
 	var desc = document.getElementById("shortDescription").value;
-	var deviceTypeId;
+	var deviceTypeId="";
 
+	var element = document.getElementById("selectManageDeviceTypes");
+	var selectedDeviceType = element.options[element.selectedIndex].innerHTML;
+
+	if(selectedDeviceType!='[Add a New Device Type]'){
+
+		deviceTypeId = '"devicetype_id":"'+element.options[element.selectedIndex].value+'",';
+	}
 	var alertTypes = document.getElementById("deviceAlert").children;
 
-	var json = '{"device_type":{"used_by":"patient","product_name":"'+devType+'","product_description":"'+desc+'"}}';
+	var json = '{"device_type":{'+deviceTypeId+'"used_by":"patient","product_name":"'+devType+'","product_description":"'+desc+'"}}';
 
 	$.ajax({
 		type: "POST",
