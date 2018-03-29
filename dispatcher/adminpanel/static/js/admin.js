@@ -14,9 +14,11 @@ $(document).ready(function(){
 		} else {
 			table.$('tr.selected').removeClass('selected');
 			$(this).addClass('selected');
-			openDeviceModal(table.row( this ).data()[0]);
+			openDeviceModal(table.row( this ).data()[4]);
 		}
 	});
+
+	table.column(4).visible(false);
 
 	filterTable("ALL");
 
@@ -50,7 +52,7 @@ function filterTable(filter){
 		success: function (data) {
 			$.each(data.devices, function (index, device) {
 				table.row.add([
-					device.serial_number, device.devicetype, device.status, device.location
+					device.serial_number, device.devicetype, device.status, device.location, device.id
 				]);
 				table.draw();
 			});
@@ -198,8 +200,8 @@ function updateDeviceType(){
 						alert(requestTypesJson);
 					}
 				});
-
 			});
+			document.getElementById("manageDeviceTypesModal").className="modal";
 		},
 		error: function (msg) {
 			alert(msg);
@@ -307,6 +309,7 @@ function addNewPatientDevice(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
+			document.getElementById("addDeviceModal").className="modal";
 		},
 		error: function (msg) {
 			alert(msg);
