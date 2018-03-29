@@ -172,6 +172,39 @@ function updateDeviceType(){
 		dataType: "json",
 		success: function (data) {
 			deviceTypeId=data.devicetype_id;
+			alert(deviceTypeId);
+			alert("DING");	
+
+
+
+			var alerts=[];
+
+			$.each(document.getElementById("deviceAlert").children,function(k,v){
+				var inputs=v.children[1].children;
+				var name = inputs[1].value;
+				var description = inputs[3].value;
+				var priority = inputs[5].value;
+				alert(deviceTypeId);
+				alerts.push('{"devicetype":"'+deviceTypeId+'",request_id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
+			});
+			$.each(alerts, function(k,v){
+
+				$.ajax({
+					type: "POST",
+					url: 'requesttype',
+					data: v,
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+					success: function (data) {
+
+					},
+					error: function (msg) {
+						alert(msg);
+						alert(requestTypesJson);
+					}
+				});
+
+			});
 		},
 		error: function (msg) {
 			alert(msg);
@@ -179,30 +212,8 @@ function updateDeviceType(){
 		}
 	});
 
-		var alerts=[];
 
-	$.each(document.getElementById("deviceAlert").children,function(k,v){
-		var inputs=v.children[1].children;
-		var name = inputs[1].value;
-		var description = inputs[3].value;
-		var priority = inputs[5].value;
-		alerts.push('{"id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
-	});
-	var requestTypesJson = '{"request_types":['+alerts+']}';
-	$.ajax({
-		type: "POST",
-		url: 'requesttypes',
-		data: requestTypesJson,
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		success: function (data) {
 
-		},
-		error: function (msg) {
-			alert(msg);
-			alert(requestTypesJson);
-		}
-	});
 }
 
 function populateManageDeviceTypeSelect(){
