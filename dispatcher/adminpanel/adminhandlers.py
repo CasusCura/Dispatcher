@@ -112,7 +112,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
                     return {
                         'status': 'OK',
                         'code': 200,
-                        'device_id': str(device.id)[2:1]
+                        'device_id': str(device.id)[2:-1]
                     }
             return {
                 'status': 'BAD',
@@ -340,7 +340,7 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
         return {
             'status': 'OK',
             'code': 200,
-            'devices_types': device_types_json,
+            'device_types': device_types_json,
         }
 
 

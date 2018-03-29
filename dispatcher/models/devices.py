@@ -28,7 +28,7 @@ class Device(Base):
 
     def serialize(self, **kwargs):
         id = str(self.id)[2:-1]
-        devicetype = str(self.devicetype)[1:-1]
+        devicetype = str(self.devicetype)[2:-1]
         return {
             'id': id,
             'serial_number': self.serial_number,
@@ -97,7 +97,7 @@ class DeviceType(Base):
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     def serialize(self, **kwargs):
-        id = str(self.id)[2:]
+        id = str(self.id)[2:-1]
         return {
             'id': id,
             'product_name': self.product_name,

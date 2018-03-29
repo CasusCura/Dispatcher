@@ -17,6 +17,8 @@ class AdminRouter(SimpleRouter):
             (r'/admin/devices', DevicesHandler),
             (r'/admin/devicetype', DeviceTypeHandler),
             (r'/admin/devicetypes', DeviceTypesHandler),
+            (r'/admin/requesttype', DeviceTypeHandler),
+            (r'/admin/requesttypes', DeviceTypesHandler),
             (r'/admin/(favicon.ico)',
                 tornado.web.StaticFileHandler,
                 {'path': 'dispatcher/adminpanel/static/'}),
