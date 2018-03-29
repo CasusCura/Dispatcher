@@ -114,9 +114,6 @@ function updatePatientDev(){
 			alert(deviceDetails);
 		}
 	});
-
-	//Refresh the page
-	location.href = 'admin/';
 }
 
 //Opens the modal for editing a device's details, after populating its fields
@@ -250,11 +247,11 @@ function populateAddDeviceTypeSelect(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			$.each(data.devicetypes, function(k,v){
+			$.each(data.device_types, function(k,v){
 				var option = document.createElement("option");
 				option.value=v.id;
 				option.innerHTML=v.product_name;
-				document.getElementById("selectManageDeviceTypes").appendChild(option);
+				document.getElementById("selectAddNewDeviceType").appendChild(option);
 			});
 		},
 		error: function (msg) {
@@ -294,11 +291,11 @@ function addNewPatientDevice(){
 	var element = document.getElementById("selectAddNewDeviceType");
 	var selectedDeviceType = element.options[element.selectedIndex].innerHTML;
 
-	var deviceDetails = '{"id":"'+document.getElementById("id").value+'", '+'"devicetype":"' + selectedDeviceType + '", "status":"INACTIVE"}';
+	var deviceDetails = '{"used_by":"patient", "device_type":"' + selectedDeviceType + '", "status":"INACTIVE"}';
 
 		$.ajax({
 		type: "POST",
-		url: 'devices',
+		url: 'device',
 		data: deviceDetails,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
@@ -309,9 +306,6 @@ function addNewPatientDevice(){
 			alert(deviceDetails);
 		}
 	});
-
-	//Refresh the page
-	location.href = 'admin';
 }
 
 function addAlertDiv(name, description, priority){
