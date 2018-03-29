@@ -18,6 +18,12 @@ class PanelHandler(RequestHandler, SessionMixin):
         self.render('static/admin.html')
 
 
+class NursePanelHandler(RequestHandler, SessionMixin):
+    def get(self):
+        """Render the panel."""
+        self.render('static/admin_nurse.html')
+
+
 class DeviceHandler(RequestHandler, SessionMixin):
     def get(self):
         """Get all values for a given device"""
