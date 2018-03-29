@@ -1,5 +1,6 @@
 from dispatcher import SimpleRouter
 from dispatcher.adminpanel import (PanelHandler,
+                                   NursePanelHandler,
                                    DeviceHandler,
                                    DevicesHandler,
                                    DeviceTypeHandler,
@@ -15,7 +16,7 @@ class AdminRouter(SimpleRouter):
     def __init__(self):
         routes = [
             (r'/admin/', PanelHandler),
-            (r'/admin/nurse', NursePanelHandler)
+            (r'/admin/nurse', NursePanelHandler),
             (r'/admin/device', DeviceHandler),
             (r'/admin/devices', DevicesHandler),
             (r'/admin/devicetype', DeviceTypeHandler),

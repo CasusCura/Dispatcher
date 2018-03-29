@@ -1,4 +1,5 @@
 from dispatcher.adminpanel.adminhandlers import (PanelHandler,
+                                                 NursePanelHandler,
                                                  DeviceHandler,
                                                  DevicesHandler,
                                                  DeviceTypeHandler,
@@ -9,6 +10,7 @@ from dispatcher.adminpanel.adminhandlers import (PanelHandler,
 from dispatcher.adminpanel.router import AdminRouter
 
 __all__ = ['PanelHandler',
+           'NursePanelHandler',
            'AdminRouter',
            'DeviceHandler',
            'DevicesHandler',
