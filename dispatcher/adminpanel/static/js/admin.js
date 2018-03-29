@@ -39,7 +39,7 @@ function filterTable(filter){
 
 	table.clear();
 
-		
+
 
 	$.ajax({
 		type: "GET",
@@ -162,7 +162,7 @@ function updateDeviceType(){
 
 	var alertTypes = document.getElementById("deviceAlert").children;
 
-	var json = '{"device_type":{"used_by":"patient","product":"'+devType+'","product_description":"'+desc+'"}}';
+	var json = '{"device_type":{"used_by":"patient","product_name":"'+devType+'","product_description":"'+desc+'"}}';
 
 	$.ajax({
 		type: "POST",

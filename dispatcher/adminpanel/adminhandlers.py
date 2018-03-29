@@ -22,19 +22,15 @@ class DeviceHandler(RequestHandler, SessionMixin):
         """Get all values for a given device"""
         id = self.get_argument('id', None)
         ret = None
-        if uuid:
+        if id:
             ret = self._get(id.encode())
-            if 'device' in ret:
-                self.set_status(200)
-                self.write(ret)
-                self.finish()
         else:
             ret = {
                 'status': 'BAD',
                 'code': 400,
                 'error': 'No id provided'
             }
-        self.set_status(400)
+        self.set_status(ret['code'])
         self.write(ret)
         self.finish()
 
@@ -44,18 +40,16 @@ class DeviceHandler(RequestHandler, SessionMixin):
             device = session.query(Device)\
                 .filter(Device.id == id)\
                 .first()
-
-        if device:
-            return {
-                'status': 'OK',
-                'device': device.serialize(),
-                'code': 200,
-            }
-        else:
-            return {
-                'status': 'BAD',
-                'code': 400,
-            }
+            if device:
+                return {
+                    'status': 'OK',
+                    'device': device.serialize(),
+                    'code': 200,
+                }
+        return {
+            'status': 'BAD',
+            'code': 400,
+        }
 
     def post(self):
         """POST - update the values for the given device id."""
@@ -215,14 +209,15 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         ret = None
         device_type = None
         used_by = None
+        print(data)
         try:
-            used_by = data['used_by']
-            device_type = data['device_type_json']
+            device_type = data['device_type']
+            used_by = device_type['used_by']
         except KeyError as ke:
             ret = {
                 'status': 'BAD',
                 'code': 400,
-                'error': 'No parameters',
+                'error': 'Missing parameters',
             }
         except Exception as e:
             ret = {
@@ -236,6 +231,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
                 ret = self._post(device_type, used_by)
             except Exception as e:
                 # TODO: Make this Json load specific
+                print(e.printstacktrace())
                 ret = {
                     'status': 'BAD',
                     'code': 400,
@@ -245,21 +241,24 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         self.write(ret)
         self.finish()
 
-    def _post(self, used_by, params):
+    def _post(self, params, used_by):
         """Inserts the new devicetype"""
         device_type = None
-        if 'id' in device_type:
-            id = device_type['id'].encode()
+        if 'id' in params:
+            id = params['id'].encode()
             with self.make_session() as session:
                 if used_by is 'nurse':
                     device_type = session.query(NurseDeviceType)\
-                        .filter_by(id=id).first()
+                        .filter_by(id=id)\
+                        .first()
                     device_type.update(
                         product_name=params['product_name'],
-                        product_description=params['product_description'])
+                        product_description=params['product_description'],
+                        used_by=used_by)
                 elif used_by is 'patient':
                     device_type = session.query(PatientDeviceType)\
-                        .filter_by(id=id).first()
+                        .filter_by(id=id)\
+                        .first()
                     device_type.product_name = params['product_name'],
                     device_type.product_description = \
                         params['product_description']
