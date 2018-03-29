@@ -2,6 +2,8 @@ from dispatcher.adminpanel.adminhandlers import (PanelHandler,
                                                  DeviceHandler,
                                                  DevicesHandler,
                                                  DeviceTypeHandler,
+                                                 RequestTypeHandler,
+                                                 RequestTypesHandler,
                                                  DeviceTypesHandler,
                                                  CredentialsHandler)
 from dispatcher.adminpanel.router import AdminRouter
