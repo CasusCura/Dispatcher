@@ -80,9 +80,10 @@ function populateDeviceEditDialog(devId){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			$.each(data.device, function (k, v) {
-				document.getElementById(k).value=v;
-			});
+				document.getElementById("id").value=data.device.id;
+				document.getElementById("devicetype").value=data.device.devicetype;
+				document.getElementById("location").value=data.device.location;
+				document.getElementById("status").value=data.device.status;
 		},
 		error: function (msg) {
 			alert(msg);
@@ -98,11 +99,11 @@ function populateDeviceEditDialog(devId){
 
 //POST updated details of a device to the service (or add a new device)
 function updatePatientDev(){
-	var deviceDetails = '{"device":{"id":"'+document.getElementById("id").value+'", "status":"'+ document.getElementById("status").value+'","location":"'+document.getElementById("location").value+'"}}';
+	var deviceDetails = '{"used_by":"patient","device":{"id":"'+document.getElementById("id").value+'", "status":"'+ document.getElementById("status").value+'","location":"'+document.getElementById("location").value+'"}}';
 
 		$.ajax({
 		type: "POST",
-		url: 'devices/',
+		url: 'device',
 		data: deviceDetails,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
