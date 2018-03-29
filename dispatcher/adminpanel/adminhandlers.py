@@ -20,10 +20,10 @@ class PanelHandler(RequestHandler, SessionMixin):
 class DeviceHandler(RequestHandler, SessionMixin):
     def get(self):
         """Get all values for a given device"""
-        uuid = self.get_argument('id', None)
+        id = self.get_argument('id', None)
         ret = None
         if uuid:
-            ret = self._get(uuid)
+            ret = self._get(id.encode())
             if 'device' in ret:
                 self.set_status(200)
                 self.write(ret)
@@ -79,7 +79,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
         devicetype_id = None
         location = None
         try:
-            devicetype_id = device_json['devicetype']
+            devicetype_id = device_json['devicetype'].encode()
             location = device_json['location']
         except Exception as e:
             return {
@@ -88,6 +88,7 @@ class DeviceHandler(RequestHandler, SessionMixin):
                 'error': 'Missing parameters; Require location and \
                 device type'
             }
+
         patientdevice = None
         with self.make_session() as session:
             devicetype = session.query(DeviceType)\
@@ -173,7 +174,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         id = self.get_argument('id', None)
         ret = None
         if id:
-            ret = self._get(id)
+            ret = self._get(id.encode())
         else:
             ret = {
                 'status': 'BAD',
@@ -189,19 +190,23 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         """Queries the dispatcher back end for the proper device type."""
         device_type = None
         with self.make_session() as session:
-            device_type = session.query(DeviceType)\
+            device_type_q = session.query(DeviceType)\
                 .filter(DeviceType.id == id)\
                 .first()
+            if device_type_q:
+                device_type = device_type_q.serialize()
+
         if device_type:
             return {
                 'status': 'OK',
                 'code': 200,
-                'device_type': device_type.serialize(),
+                'device_type': device_type,
             }
         else:
             return {
                 'status': 'BAD',
                 'code': 400,
+                'error': 'Matching type not found'
             }
 
     def post(self):
@@ -244,7 +249,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         """Inserts the new devicetype"""
         device_type = None
         if 'id' in device_type:
-            id = device_type['id']
+            id = device_type['id'].encode()
             with self.make_session() as session:
                 if used_by is 'nurse':
                     device_type = session.query(NurseDeviceType)\
