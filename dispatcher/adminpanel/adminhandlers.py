@@ -55,11 +55,9 @@ class DeviceHandler(RequestHandler, SessionMixin):
 
     def post(self):
         """POST - update the values for the given device id."""
-        device_json = self.get_argument('device', None)
-        device = None
         ret = None
         try:
-            device = json.load(device_json)
+            device = json.load(self.request.body)
             ret = self._post(device)
         except Exception as e:
             ret = {
@@ -71,44 +69,55 @@ class DeviceHandler(RequestHandler, SessionMixin):
         self.write(ret)
         self.finish()
 
-    def _post(self, device_json):
-        devicetype_id = None
-        location = None
-        try:
-            devicetype_id = device_json['devicetype'].encode()
-            location = device_json['location']
-        except Exception as e:
+    def _post(self, params):
+        device = None
+        if 'id' in params:
+            id = params['id'].encode()
+            with self.make_session() as session:
+                if params['used_by'] is 'nurse':
+                    device = session.query(NurseDevice)\
+                        .filter_by(id=id)\
+                        .first()
+                    device.status = params['status']
+                    device.floor = params['floor']
+                elif params['used_by'] is 'patient':
+                    device = session.query(PatientDeviceType)\
+                        .filter_by(id=id)\
+                        .first()
+                    device.status = params['status']
+                    device.location = params['location']
+                if device:
+                    return {
+                        'status': 'OK',
+                        'device_id': device.id,
+                        'code': 200,
+                    }
+                else:
+                    return {
+                        'status': 'FAILED',
+                        'code': 500,
+                        'error': 'CSGames was an inside job',
+                    }
+        else:
+            with self.make_session() as session:
+                device = None
+                if params['used_by'] == 'nurse':
+                    device = NurseDevice(params['device_type'],
+                                         params['floor'])
+                elif params['used_by'] == 'patient':
+                    device = PatientDevice(params['device_type'],
+                                           params['location'])
+                session.add(device)
+                if device:
+                    return {
+                        'status': 'OK',
+                        'code': 200,
+                        'device_id': str(device.id)[2:1]
+                    }
             return {
                 'status': 'BAD',
                 'code': 400,
-                'error': 'Missing parameters; Require location and \
-                device type'
-            }
-
-        patientdevice = None
-        with self.make_session() as session:
-            devicetype = session.query(DeviceType)\
-                .filter(DeviceType.id == devicetype_id)\
-                .first()
-            if devicetype is None:
-                return {
-                    'status': 'BAD',
-                    'code': 400,
-                    'error': 'DeviceType doesn\'t exist'
-                }
-            patientdevice = PatientDevice(devicetype.id, location)
-            session.add(patientdevice)
-        if patientdevice:
-            return {
-                'status': 'OK',
-                'code': 204,
-                'device_id': patientdevice.id
-            }
-        else:
-            return {
-                'status': 'FAILED',
-                'code': 500,
-                'error': 'Must construct additional pylons & devs',
+                'error': 'Missing parameters',
             }
 
 
@@ -207,18 +216,11 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
 
     def post(self):
         """Handles creating/updating a new device type."""
-        data = json.loads(self.request.body)
         ret = None
         device_type = None
-        used_by = None
-        print(data)
         try:
+            data = json.loads(self.request.body)
             device_type = data['device_type']
-            print(device_type)
-            print(device_type['used_by'])
-            print(device_type['used_by'] == 'patient')
-            print(type('patient'))
-            print(type(device_type['used_by']))
         except KeyError as ke:
             ret = {
                 'status': 'BAD',
@@ -237,7 +239,6 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
                 ret = self._post(device_type)
             except Exception as e:
                 # TODO: Make this Json load specific
-                print(e)
                 ret = {
                     'status': 'BAD',
                     'code': 400,
@@ -296,7 +297,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
                     return {
                         'status': 'OK',
                         'code': 200,
-                        'device_id': str(device_type)[2:1]
+                        'devicetype_id': str(device_type.id)[2:-1]
                     }
             return {
                 'status': 'BAD',

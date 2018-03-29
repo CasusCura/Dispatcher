@@ -20,6 +20,7 @@ class Device(Base):
     __tablename__ = 'devices'
 
     id = Column(String(32), primary_key=True)
+    serial_number = Column(String(60), primary_key=True)
     devicetype = Column(String(32), ForeignKey('devicetypes.id'))
     status = Column(Enum(DeviceStatus), nullable=False)
     used_by = Column(String(10))
@@ -30,6 +31,7 @@ class Device(Base):
         devicetype = str(self.devicetype)[1:-1]
         return {
             'id': id,
+            'serial_number': self.serial_number,
             'devicetype': devicetype,
             'status': self.status.name,
             'used_by': self.used_by,
@@ -46,8 +48,11 @@ class PatientDevice(Device):
                           Issue.patientdevice')
     __mapper_args__ = {'polymorphic_identity': 'patient'}
 
-    def __init__(self, devicetype: String, location: String):
+    def __init__(self, devicetype: String,
+                 location: String,
+                 serial_number: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
+        self.serial_number = serial_number
         self.devicetype = devicetype
         self.status = DeviceStatus.INACTIVE
         self.location = location
@@ -65,8 +70,11 @@ class NurseDevice(Device):
                              Response.nursedevice')
     __mapper_args__ = {'polymorphic_identity': 'nurse'}
 
-    def __init__(self, devicetype: String, floor: String):
+    def __init__(self, devicetype: String,
+                 floor: String,
+                 serial_number: String):
         self.id = str(uuid.uuid4().hex).encode('ascii')
+        self.serial_number = serial_number
         self.devicetype = devicetype
         self.status = DeviceStatus.INACTIVE
         self.floor = floor
@@ -89,7 +97,7 @@ class DeviceType(Base):
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     def serialize(self, **kwargs):
-        id = str(self.id)[2:-1]
+        id = str(self.id)[2:]
         return {
             'id': id,
             'product_name': self.product_name,
