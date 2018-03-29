@@ -57,9 +57,12 @@ class DeviceHandler(RequestHandler, SessionMixin):
         """POST - update the values for the given device id."""
         ret = None
         try:
-            device = json.load(self.request.body)
+            data = json.loads(self.request.body)
+            device = data['device']
             ret = self._post(device)
         except Exception as e:
+            print(e)
+            raise e
             ret = {
                 'status': 'FAILED',
                 'code': 500,
@@ -70,17 +73,17 @@ class DeviceHandler(RequestHandler, SessionMixin):
         self.finish()
 
     def _post(self, params):
-        device = None
         if 'id' in params:
             id = params['id'].encode()
             with self.make_session() as session:
-                if params['used_by'] is 'nurse':
+                device = None
+                if params['used_by'] == 'nurse':
                     device = session.query(NurseDevice)\
                         .filter_by(id=id)\
                         .first()
                     device.status = params['status']
                     device.floor = params['floor']
-                elif params['used_by'] is 'patient':
+                elif params['used_by'] == 'patient':
                     device = session.query(PatientDeviceType)\
                         .filter_by(id=id)\
                         .first()
@@ -92,21 +95,22 @@ class DeviceHandler(RequestHandler, SessionMixin):
                         'device_id': device.id,
                         'code': 200,
                     }
-                else:
-                    return {
-                        'status': 'FAILED',
-                        'code': 500,
-                        'error': 'CSGames was an inside job',
-                    }
+            return {
+                'status': 'FAILED',
+                'code': 500,
+                'error': 'CSGames was an inside job',
+            }
         else:
             with self.make_session() as session:
                 device = None
                 if params['used_by'] == 'nurse':
                     device = NurseDevice(params['device_type'],
-                                         params['floor'])
+                                         'None',
+                                         params['serial'])
                 elif params['used_by'] == 'patient':
                     device = PatientDevice(params['device_type'],
-                                           params['location'])
+                                           'None',
+                                           params['serial'])
                 session.add(device)
                 if device:
                     return {
@@ -148,9 +152,9 @@ class DevicesHandler(RequestHandler, SessionMixin):
         device_json = []
         with self.make_session() as session:
             baked_query = None
-            if used_by is 'nurse':
+            if used_by == 'nurse':
                 baked_query = session.query(NurseDevice)
-            elif used_by is 'patient':
+            elif used_by == 'patient':
                 baked_query = session.query(PatientDevice)
             else:
                 baked_query = session.query(Device)
@@ -331,8 +335,6 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
                 device_types = session.query(PatientDeviceType).all()
             else:
                 device_types = session.query(DeviceType).all()
-            device_types_json = [d_t.serialize() for d_t in device_types]
-            print(device_types_json)
             if len(device_types) is 0:
                 device_types_json = []
             else:
@@ -341,6 +343,157 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
             'status': 'OK',
             'code': 200,
             'device_types': device_types_json,
+        }
+
+
+class RequestTypeHandler(RequestHandler, SessionMixin):
+    """Handles returning and creating new request types."""
+    def get(self):
+        """Handle get requests when an id is provided."""
+        id = self.get_argument('id', None)
+        ret = None
+        if id:
+            ret = self._get(id.encode())
+        else:
+            ret = {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'No id provided',
+            }
+
+        self.set_status(ret['code'])
+        self.write(ret)
+        self.finish()
+
+    def _get(self, id):
+        """Queries the dispatcher back end for the proper request type."""
+        request_type = None
+        with self.make_session() as session:
+            request_type = session.query(RequestType)\
+                .filter(RequestType.id == id)\
+                .first()
+            if request_type:
+                    return {
+                        'status': 'OK',
+                        'code': 200,
+                        'request_type': request_type.serialize(),
+                    }
+        return {
+            'status': 'BAD',
+            'code': 400,
+            'error': 'Matching type not found'
+        }
+
+    def post(self):
+        """Handles creating/updating a new device type."""
+        ret = None
+        request_type = None
+        try:
+            data = json.loads(self.request.body)
+            request_type = data['request_type']
+        except KeyError as ke:
+            ret = {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'Missing parameters',
+            }
+        except Exception as e:
+            ret = {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'Too many parameters',
+            }
+
+        if ret is None:
+            try:
+                ret = self._post(request_type)
+            except Exception as e:
+                # TODO: Make this Json load specific
+                ret = {
+                    'status': 'BAD',
+                    'code': 400,
+                    'error': 'Invalid request type format',
+                }
+        self.set_status(ret['code'])
+        self.write(ret)
+        self.finish()
+
+    def _post(self, params):
+        """Inserts the new devicetype"""
+        request_type = None
+        if 'id' in params:
+            id = params['id'].encode()
+            with self.make_session() as session:
+                request_type = session.query(RequestType)\
+                    .filter_by(id=id)\
+                    .first()
+                request_type.device_request_id = \
+                    params['device_request_id']
+                request_type.name = params['name']
+                request_type.description = params['description']
+                request_type.priority = params['priority']
+
+                if request_type:
+                    return {
+                        'status': 'OK',
+                        'requesttype_id': str(request_type.id)[2:-1],
+                        'code': 200,
+                    }
+                return {
+                    'status': 'FAILED',
+                    'code': 500,
+                    'error': 'CSGames was an inside job',
+                }
+        else:
+            with self.make_session() as session:
+                request_type = RequestType(
+                        params['device_request_id'],
+                        params['name'],
+                        params['description'],
+                        params['priority'])
+                session.add(request_type)
+                return {
+                    'status': 'OK',
+                    'code': 200,
+                    'request_type_id': str(request_type.id)[2:-1]
+                }
+            return {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'Missing parameters',
+            }
+
+
+class RequestTypesHandler(RequestHandler, SessionMixin):
+    def get(self):
+        device_type = self.get_argument('device_type', None)
+        ret = None
+        if device_type:
+            ret = self._get(device_type.encode())
+        else:
+            ret = {
+                'status': 'BAD',
+                'code': 400,
+                'error': 'No parameters',
+            }
+        self.set_status(ret['code'])
+        self.write(ret)
+        self.finish()
+
+    def _get(self, device_type):
+        request_types_json = []
+        with self.make_session() as session:
+            request_types = session.query(RequestType)\
+                .filter(RequestType.devicetype == device_type)\
+                .all()
+            if len(request_types) is 0:
+                request_types_json = []
+            else:
+                request_types_json = [d_t.serialize() for d_t in request_types]
+        return {
+            'status': 'OK',
+            'code': 200,
+            'device_types': request_types_json,
         }
 
 

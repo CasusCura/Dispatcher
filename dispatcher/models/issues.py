@@ -152,14 +152,13 @@ class RequestType(Base):
         self.devicetype = devicetype
         self.priority = priority
 
-    def __str__(self):
-        return self.serialize()
-
     def serialize(self, **kwargs):
+        id = str(self.id)[2:-1]
+        dev_type = str(self.dev_type)[2:-1]
         return {
-            'id': self.id,
+            'id': id,
             'device_request_id': self.device_request_id,
-            'devicetype': self.devicetype,
+            'devicetype': dev_type,
             'name': self.name,
             'description': self.description,
             'priority': self.priority,
