@@ -324,29 +324,24 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
 
     def _get(self, used_by):
         device_types_json = None
-
-        print(used_by)
         with self.make_session() as session:
-            if used_by is 'nurse':
+            if used_by == 'nurse':
                 device_types = session.query(NurseDeviceType).all()
-            elif used_by is 'patient':
+            elif used_by == 'patient':
                 device_types = session.query(PatientDeviceType).all()
             else:
                 device_types = session.query(DeviceType).all()
             device_types_json = [d_t.serialize() for d_t in device_types]
             print(device_types_json)
-        if device_types_json:
-            return {
-                'status': 'OK',
-                'code': 200,
-                'device_types': device_types_json,
-            }
-        else:
-            return {
-                'status': 'FAILED',
-                'code': 500,
-                'error': 'pay me IN BITCOIN',
-            }
+            if len(device_types) is 0:
+                device_types_json = []
+            else:
+                device_types_json = [d_t.serialize() for d_t in device_types]
+        return {
+            'status': 'OK',
+            'code': 200,
+            'devices_types': device_types_json,
+        }
 
 
 class CredentialsHandler(RequestHandler, SessionMixin):
