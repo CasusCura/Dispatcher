@@ -421,13 +421,13 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
     def _post(self, params):
         """Inserts the new devicetype"""
         request_type = None
-        if 'device_type_id' in params:
+        if 'request_type_id' in params:
             id = params['request_type_id'].encode()
             with self.make_session() as session:
                 request_type = session.query(RequestType)\
                     .filter_by(id=id)\
                     .first()
-                request_type.device_request_id = params['request_id']
+                request_type.device_request_id = params['device_request_id']
                 request_type.name = params['name']
                 request_type.description = params['description']
                 request_type.priority = params['priority']
@@ -446,9 +446,9 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
         else:
             with self.make_session() as session:
                 request_type = RequestType(
-                        params['request_id'],
+                        params['device_request_id'],
                         params['description'],
-                        params['devicetype'],
+                        params['device_type_id'],
                         params['priority'])
                 session.add(request_type)
                 return {
