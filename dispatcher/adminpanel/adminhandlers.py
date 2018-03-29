@@ -1,5 +1,7 @@
 from tornado.web import RequestHandler
 from tornado_sqlalchemy import SessionMixin
+import traceback
+
 from dispatcher.models import (Device,
                                DeviceStatus,
                                DeviceType,
@@ -212,7 +214,11 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         print(data)
         try:
             device_type = data['device_type']
-            used_by = device_type['used_by']
+            print(device_type)
+            print(device_type['used_by'])
+            print(device_type['used_by'] == 'patient')
+            print(type('patient'))
+            print(type(device_type['used_by']))
         except KeyError as ke:
             ret = {
                 'status': 'BAD',
@@ -228,10 +234,10 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
 
         if ret is None:
             try:
-                ret = self._post(device_type, used_by)
+                ret = self._post(device_type)
             except Exception as e:
                 # TODO: Make this Json load specific
-                print(e.printstacktrace())
+                print(e)
                 ret = {
                     'status': 'BAD',
                     'code': 400,
@@ -241,21 +247,21 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
         self.write(ret)
         self.finish()
 
-    def _post(self, params, used_by):
+    def _post(self, params):
         """Inserts the new devicetype"""
         device_type = None
         if 'id' in params:
             id = params['id'].encode()
             with self.make_session() as session:
-                if used_by is 'nurse':
+                if params['used_by'] is 'nurse':
                     device_type = session.query(NurseDeviceType)\
                         .filter_by(id=id)\
                         .first()
-                    device_type.update(
-                        product_name=params['product_name'],
-                        product_description=params['product_description'],
-                        used_by=used_by)
-                elif used_by is 'patient':
+                    device_type.product_name = \
+                        params['product_name']
+                    device_type.product_description = \
+                        params['product_description']
+                elif params['used_by'] is 'patient':
                     device_type = session.query(PatientDeviceType)\
                         .filter_by(id=id)\
                         .first()
@@ -276,20 +282,22 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
                     }
         else:
             with self.make_session() as session:
-                e = DeviceType
-                if used_by is 'nurse':
-                    e = NurseDeviceType
-                elif used_by is 'patient':
-                    e = PatientDeviceType
-                device_type = e(
-                    product_name=params['product_name'],
-                    product_description=params['product_description'])
+                device_type = None
+                if params['used_by'] == 'nurse':
+                    device_type = NurseDeviceType(
+                            product_name=params['product_name'],
+                            product_description=params['product_description'])
+                elif params['used_by'] == 'patient':
+                    device_type = PatientDeviceType(
+                        product_name=params['product_name'],
+                        product_description=params['product_description'])
                 session.add(device_type)
-            if device_type:
-                return {
-                    'status': 'OK',
-                    'code': 200,
-                }
+                if device_type:
+                    return {
+                        'status': 'OK',
+                        'code': 200,
+                        'device_id': str(device_type)[2:1]
+                    }
             return {
                 'status': 'BAD',
                 'code': 400,
