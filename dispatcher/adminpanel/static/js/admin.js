@@ -50,7 +50,7 @@ function filterTable(filter){
 		success: function (data) {
 			$.each(data.devices, function (index, device) {
 				table.row.add([
-					device.serial, device.devicetype, device.status, device.location
+					device.serial_number, device.devicetype, device.status, device.location
 				]);
 				table.draw();
 			});

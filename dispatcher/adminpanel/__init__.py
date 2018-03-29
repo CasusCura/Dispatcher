@@ -14,4 +14,6 @@ __all__ = ['PanelHandler',
            'DevicesHandler',
            'DeviceTypesHandler',
            'DeviceTypesHandler',
+           'RequestTypeHandler',
+           'RequestTypesHandler',
            'CredentialsHandler']

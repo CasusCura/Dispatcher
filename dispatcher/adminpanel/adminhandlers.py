@@ -1,6 +1,5 @@
 from tornado.web import RequestHandler
 from tornado_sqlalchemy import SessionMixin
-import traceback
 
 from dispatcher.models import (Device,
                                DeviceStatus,
@@ -398,7 +397,6 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
                 'error': 'Missing parameters',
             }
         except Exception as e:
-            raise e
             ret = {
                 'status': 'BAD',
                 'code': 400,
@@ -410,6 +408,7 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
                 ret = self._post(request_type)
             except Exception as e:
                 # TODO: Make this Json load specific
+                raise e
                 ret = {
                     'status': 'BAD',
                     'code': 400,
@@ -428,8 +427,7 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
                 request_type = session.query(RequestType)\
                     .filter_by(id=id)\
                     .first()
-                request_type.device_request_id = \
-                    params['device_request_id']
+                request_type.device_request_id = params['request_id']
                 request_type.name = params['name']
                 request_type.description = params['description']
                 request_type.priority = params['priority']
@@ -448,10 +446,9 @@ class RequestTypeHandler(RequestHandler, SessionMixin):
         else:
             with self.make_session() as session:
                 request_type = RequestType(
-                        params['device_request_id'],
-                        params['name'],
+                        params['request_id'],
                         params['description'],
-                        params['device_type'],
+                        params['devicetype'],
                         params['priority'])
                 session.add(request_type)
                 return {

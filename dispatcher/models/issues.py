@@ -139,15 +139,13 @@ class RequestType(Base):
     id = Column(String(32), primary_key=True)
     device_request_id = Column(String, nullable=False)
     devicetype = Column(String(32), ForeignKey('devicetypes.id'))
-    name = Column(String(50), nullable=False)
     description = Column(String(200), nullable=False)
     priority = Column(Integer, nullable=False)
 
-    def __init__(self, id: String, name: String, description: String,
+    def __init__(self, id: String, description: String,
                  devicetype: String, priority: int):
         self.id = str(uuid.uuid4().hex).encode('ascii')
         self.device_request_id = id
-        self.name = name
         self.description = description
         self.devicetype = devicetype
         self.priority = priority
@@ -157,9 +155,8 @@ class RequestType(Base):
         dev_type = str(self.dev_type)[2:-1]
         return {
             'id': id,
-            'device_request_id': self.device_request_id,
             'devicetype': dev_type,
-            'name': self.name,
+            'request_id': self.device_request_id,
             'description': self.description,
             'priority': self.priority,
         }
