@@ -247,6 +247,7 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
                 ret = self._post(device_type)
             except Exception as e:
                 # TODO: Make this Json load specific
+                raise e
                 ret = {
                     'status': 'BAD',
                     'code': 400,
@@ -259,54 +260,48 @@ class DeviceTypeHandler(RequestHandler, SessionMixin):
     def _post(self, params):
         """Inserts the new devicetype"""
         device_type = None
-        if 'device_type_id' in params:
-            id = params['device_type_id'].encode()
-            with self.make_session() as session:
-                if params['used_by'] is 'nurse':
-                    device_type = session.query(NurseDeviceType)\
-                        .filter_by(id=id)\
-                        .first()
-                    device_type.product_name = \
-                        params['product_name']
-                    device_type.product_description = \
-                        params['product_description']
-                elif params['used_by'] is 'patient':
-                    device_type = session.query(PatientDeviceType)\
-                        .filter_by(id=id)\
-                        .first()
-                    device_type.product_name = params['product_name'],
-                    device_type.product_description = \
-                        params['product_description']
-                if device_type:
-                    return {
-                        'status': 'OK',
-                        'device_type_id': device_type.id,
-                        'code': 200,
-                    }
-                else:
-                    return {
-                        'status': 'FAILED',
-                        'code': 500,
-                        'error': 'CSGames was an inside job',
-                    }
-        else:
-            with self.make_session() as session:
-                device_type = None
-                if params['used_by'] == 'nurse':
-                    device_type = NurseDeviceType(
-                            product_name=params['product_name'],
-                            product_description=params['product_description'])
-                elif params['used_by'] == 'patient':
-                    device_type = PatientDeviceType(
+        #if 'device_type_id' in params:
+        #    id = params['device_type_id'].encode()
+        #    with self.make_session() as session:
+        #        if params['used_by'] == 'nurse':
+        #            device_type = session.query(NurseDeviceType)\
+        #                .filter_by(id=id)\
+        #                .first()
+        #            device_type.update(product_name=
+        #                               params['product_name'].encode(),
+        #                               product_description=
+        #                               params['product_description'])
+        #        elif params['used_by'] == 'patient':
+        #            device_type = session.query(PatientDeviceType)\
+        #                .filter_by(id=id)\
+        #                .first()
+        #            device_type.product_name = str(params['product_name']),
+        #            device_type.product_description = \
+        #                str(params['product_description'])
+        #        return {
+        #            'status': 'OK',
+        #            'device_type_id': device_type.id,
+        #            'code': 200,
+        #        }
+
+        #else:
+        with self.make_session() as session:
+            device_type = None
+            if params['used_by'] == 'nurse':
+                device_type = NurseDeviceType(
                         product_name=params['product_name'],
                         product_description=params['product_description'])
-                session.add(device_type)
-                if device_type:
-                    return {
-                        'status': 'OK',
-                        'code': 200,
-                        'devicetype_id': str(device_type.id)[2:-1]
-                    }
+            elif params['used_by'] == 'patient':
+                device_type = PatientDeviceType(
+                    product_name=params['product_name'],
+                    product_description=params['product_description'])
+            session.add(device_type)
+            if device_type:
+                return {
+                    'status': 'OK',
+                    'code': 200,
+                    'devicetype_id': str(device_type.id)[2:-1]
+                }
             return {
                 'status': 'BAD',
                 'code': 400,
