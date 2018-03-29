@@ -70,7 +70,7 @@ function populateDeviceEditDialog(devId){
 	$.ajax({
 		type: "GET",
 		url: 'device',
-		data: "id=" + devId,
+		data: "device_id=" + devId,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
@@ -78,22 +78,22 @@ function populateDeviceEditDialog(devId){
 				document.getElementById("devicetype").value=data.device.devicetype;
 				document.getElementById("location").value=data.device.location;
 				document.getElementById("status").value=data.device.status;
+				document.getElementById("serial").value=data.device.serial_number;
 		},
 		error: function (msg) {
 			alert(msg);
-			//Temp JSON
-			msg='{"id":"dev1","devicetype":"autoFallDetection","status":"INACTIVE","location":"Narnia","username":"aUserName","password":"password1234"}';
-			var jsonMSG=JSON.parse(msg);
-			/*$.each(jsonMSG, function (k, v) {
-				document.getElementById(k).value=v;
-			});*/
 		}
 	});
 }
 
 //POST updated details of a device to the service (or add a new device)
 function updatePatientDev(){
-	var deviceDetails = '{"device":{"used_by":"patient","device_type":"'+document.getElementById("id").value+'", "status":"'+ document.getElementById("status").value+'","location":"'+document.getElementById("location").value+'"}}';
+	var devType = document.getElementById("devicetype").value;
+	var status = document.getElementById("status").value;
+	var location = document.getElementById("location").value;
+	var serial = document.getElementById("serial").value;
+	var id = document.getElementById("id").value;
+	var deviceDetails = '{"device":{"used_by":"patient","serial":"'+serial+'","device_type":"'+ devType +'", "status":"'+ status +'","location":"'+ location +'","device_id":"'+id+'"}}';
 
 		$.ajax({
 		type: "POST",
@@ -102,13 +102,14 @@ function updatePatientDev(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			alert("success");
+
 		},
 		error: function (msg) {
 			alert(msg);
 			alert(deviceDetails);
 		}
 	});
+	document.getElementById("DeviceEditModal").className="modal";
 }
 
 //Opens the modal for editing a device's details, after populating its fields
@@ -164,7 +165,7 @@ function updateDeviceType(){
 	}
 	var alertTypes = document.getElementById("deviceAlert").children;
 
-	var json = '{"device_type":{'+deviceTypeId+'"used_by":"patient","product_name":"'+devType+'","product_description":"'+desc+'"}}';
+	var json = '{"device_type":{"device_type_id":"'+deviceTypeId+'",used_by":"patient","product_name":"'+devType+'","product_description":"'+desc+'"}}';
 
 	$.ajax({
 		type: "POST",
@@ -182,7 +183,7 @@ function updateDeviceType(){
 				var name = inputs[1].value;
 				var description = inputs[3].value;
 				var priority = inputs[5].value;
-				alerts.push('{"devicetype":"'+deviceTypeId+'","request_id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
+				alerts.push('{"device_type_id":"'+deviceTypeId+'","request_id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
 			});
 			$.each(alerts, function(k,v){
 
@@ -281,7 +282,7 @@ function deviceTypeSelectChange(){
 		$.ajax({
 		type: "GET",
 		url: 'devicetype',
-		data: "id="+selectedDeviceId,
+		data: "device_type_id="+selectedDeviceId,
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
