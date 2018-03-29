@@ -121,11 +121,9 @@ class DevicesHandler(RequestHandler, SessionMixin):
         """GET - returns all devices who's status satisfy the filter."""
         device_status = self.get_argument('devicestatus', None)
         used_by = self.get_argument('used_by', None)
-        print('used_by')
-        print(used_by is 'patient')
         ret = None
         if used_by:
-            ret = self._get(device_status, used_by)
+            ret = self._get(device_status, str(used_by))
         else:
             ret = {
                 'status': 'BAD',
@@ -137,8 +135,7 @@ class DevicesHandler(RequestHandler, SessionMixin):
         self.finish()
 
     def _get(self, status, used_by):
-        devices = None
-        print(used_by)
+        device_json = None
         with self.make_session() as session:
             baked_query = None
             if used_by is 'nurse':
@@ -151,12 +148,13 @@ class DevicesHandler(RequestHandler, SessionMixin):
                 devices = baked_query.filter(Device.status == status).all()
             else:
                 devices = baked_query.all()
-
-        if devices is not None:
+            print(devices)
+            device_json = [d_t.serialize() for d_t in devices]
+        if device_json:
             return {
                 'status': 'OK',
                 'code': 200,
-                'devices': devices,
+                'devices': device_json,
             }
         else:
             return {
@@ -332,7 +330,6 @@ class DeviceTypesHandler(RequestHandler, SessionMixin):
             device_types_json = [d_t.serialize() for d_t in device_types]
             print(device_types_json)
         if device_types_json:
-
             return {
                 'status': 'OK',
                 'code': 200,

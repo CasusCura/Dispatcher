@@ -13,6 +13,9 @@ class DeviceStatus(enum.Enum):
     DEACTIVATED = 2
     RETIRED = 3
 
+    def __str__(self):
+        return str(self).split('.')[1]
+
 
 class Device(Base):
     """Represents any device that needs to have credentials managed for
@@ -27,10 +30,11 @@ class Device(Base):
 
     def serialize(self, **kwargs):
         id = str(self.id)[1:-1]
+        devicetype = str(self.devicetype)[1:-1]
         return {
             'id': id,
-            'devicetype': self.devicetype,
-            'status': self.status,
+            'devicetype': devicetype,
+            'status': self.status.name,
             'used_by': self.used_by,
             **kwargs
         }
@@ -52,7 +56,7 @@ class PatientDevice(Device):
         self.location = location
 
     def serialize(self):
-        super(PatientDevice, self)\
+        return super(PatientDevice, self)\
             .serialize(location=self.location)
 
 
@@ -71,7 +75,7 @@ class NurseDevice(Device):
         self.floor = floor
 
     def serialize(self):
-        super(NurseDevice, self)\
+        return super(NurseDevice, self)\
             .serialize(floor=self.floor)
 
 
