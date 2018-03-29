@@ -150,7 +150,7 @@ class RequestType(Base):
 
     def serialize(self, **kwargs):
         id = str(self.id)[2:-1]
-        dev_type = str(self.dev_type)[2:-1]
+        dev_type = str(self.devicetype)[2:-1]
         return {
             'id': id,
             'devicetype': dev_type,

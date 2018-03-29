@@ -23,10 +23,10 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
         ret = self._get(uuid)
         if ret['issue']:
             self.set_status(200)
-            self.writeout(json.dump(ret))
+            self.write(json.dump(ret))
         else:
             self.set_status(400)
-            self.writeout(json.dump(ret))
+            self.write(json.dump(ret))
         self.finish()
 
     def _get(self, uuid):
@@ -52,11 +52,15 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
         """Creates a new issue for this patient device."""
         # Get Variables
         print('hit')
+        print(self.request.body)
         data = json.loads(self.request.body)
+        request_id = None
+        r_data = None
+        uuid = None
         ret = None
         try:
             uuid = data['device_id']
-            request_id = data['device_request_id']
+            request_id = data['request_id']
             r_data = data['data']
         except KeyError as ke:
             ret = {
@@ -64,10 +68,11 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
                 'issue': None,
                 'code': 400,
             }
+        print(uuid, request_id, r_data)
         # Verify Valid parameters
-        if uuid and request_id and r_data:
+        if uuid and request_id:
             ret = self._post(uuid, request_id, r_data)
-        self.writeout(ret)
+        self.write(ret)
         self.set_status(ret['code'])
         self.finish()
 
@@ -77,28 +82,28 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
         issue = None
         with self.make_session() as session:
             device = session.query(Device)\
-                .filter(Device.patientdevice == device_id)\
+                .filter(Device.id == device_id.encode())\
                 .first()
             if device:
                 request_type = session.query(RequestType)\
-                    .filter(RequestType.devicetype == device.devicetype.id,
-                            RequestType.device_request_id == request_id)\
+                    .filter(RequestType.devicetype == device.devicetype)\
                     .all()
+                print([t.serialize() for t in request_type])
             # Handle invalid rid
-            if len(request_type.all()) != 1:
-                return {'status': 'BAD', 'code': 400}
-            request_type = request_type.first()
-            # Create Issue
-            issue = Issue(device_id, request_type.id, request_type.priority)
-            session.add(issue)
-            if request_data:
-                requestdata = RequestData(device_id, issue.id,
-                                          json.load(request_data))
-                session.add(requestdata)
-        if issue:
-            return {'status': 'OK', 'issueid': issue.id, }
-        else:
-            return {'status': 'BAD', 'code': 400}
+                if len(request_type) != 1:
+                    return {'status': 'BAD', 'code': 400}
+                request_type = request_type[0]
+                # Create Issue
+                issue = Issue(device_id, request_type.id, request_type.priority)
+                session.add(issue)
+                if request_data:
+                    requestdata = RequestData(device_id, issue.id,
+                                              json.load(request_data))
+                    session.add(requestdata)
+                if issue:
+                    return {'status': 'OK', 'issueid': str(issue.id)[2:-1],'code': 200 }
+                else:
+                    return {'status': 'BAD', 'error': 'nothing found', 'code': 400}
 
     def update(self):
         """Adds request data or updates repeated issue."""
@@ -143,12 +148,12 @@ class PatientDeleteHandler(RequestHandler, SessionMixin):
                         Issue.status < 3)
             if len(q_issue.all()) != 1:
                 self.set_status(400)
-                self.writeout(json.dump({'status': 'DENIED', }))
+                self.write(json.dump({'status': 'DENIED', }))
                 self.finish()
                 return
             issue = q_issue.first()
             issue.status = IssueStates.CANCELLED
             self.set_status(200)
-            self.writeout(json.dump({'status': 'OK', }))
+            self.write(json.dump({'status': 'OK', }))
         self.finish()
         return

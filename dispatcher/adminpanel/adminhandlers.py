@@ -66,7 +66,6 @@ class DeviceHandler(RequestHandler, SessionMixin):
             device = data['device']
             ret = self._post(device)
         except Exception as e:
-            print(e)
             raise e
             ret = {
                 'status': 'FAILED',
@@ -81,28 +80,32 @@ class DeviceHandler(RequestHandler, SessionMixin):
         if 'device_id' in params:
             id = params['device_id'].encode()
             with self.make_session() as session:
-                device = None
                 if params['used_by'] == 'nurse':
                     device = session.query(NurseDevice)\
                         .filter_by(id=id)\
                         .first()
-                    device.status = params['status']
-                    device.floor = params['floor']
+                    if device:
+                        try:
+                            status = DeviceStatus[str(params['status'])].value
+                        except KeyError as e:
+                            status = device.status
+                        device.status = status
+                        device.floor = params['floor']
                 elif params['used_by'] == 'patient':
-                    device = session.query(PatientDeviceType)\
+                    device = session.query(PatientDevice)\
                         .filter_by(id=id)\
                         .first()
-                    device.status = params['status']
-                    device.location = params['location']
-                return {
-                    'status': 'OK',
-                    'device_id': device.id,
-                    'code': 200,
-                }
+                    if device:
+                        try:
+                            status = DeviceStatus[params['status']]
+                        except KeyError as e:
+                            status = device.status
+                        device.status = status
+                        device.location = params['location']
             return {
-                'status': 'FAILED',
-                'code': 500,
-                'error': 'CSGames was an inside job',
+                'status': 'OK',
+                'device_id': params['device_id'],
+                'code': 200,
             }
         else:
             with self.make_session() as session:
