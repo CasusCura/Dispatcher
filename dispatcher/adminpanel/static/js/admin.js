@@ -280,11 +280,8 @@ function deviceTypeSelectChange(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			document.getElementById("deviceType").value=data.product;
-			document.getElementById("shortDescription").value=data.product_description;
-			$.each(data, function (k, v) {
-				document.getElementById(k).value=v;
-			});
+			document.getElementById("deviceType").value=data.device_type.product_name;
+			document.getElementById("shortDescription").value=data.device_type.product_description;
 		},
 		error: function (msg) {
 			//Temp JSON
