@@ -161,11 +161,11 @@ function updateDeviceType(){
 
 	if(selectedDeviceType!='[Add a New Device Type]'){
 
-		deviceTypeId = '"devicetype_id":"'+element.options[element.selectedIndex].value+'",';
+		deviceTypeId = '"device_type_id":"'+element.options[element.selectedIndex].value+'",';
 	}
 	var alertTypes = document.getElementById("deviceAlert").children;
 
-	var json = '{"device_type":{"device_type_id":"'+deviceTypeId+'",used_by":"patient","product_name":"'+devType+'","product_description":"'+desc+'"}}';
+	var json = '{"device_type":{'+deviceTypeId+'"used_by":"patient","product_name":"'+devType+'","product_description":"'+desc+'"}}';
 
 	$.ajax({
 		type: "POST",
