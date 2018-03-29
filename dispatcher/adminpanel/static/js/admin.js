@@ -67,6 +67,7 @@ function filterTable(filter){
 			});*/
 		}
 	});
+	table.draw();
 }
 
 //Fetch the details of the specified device from the service
