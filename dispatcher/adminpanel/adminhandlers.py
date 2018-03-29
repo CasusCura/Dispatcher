@@ -118,11 +118,16 @@ class DeviceHandler(RequestHandler, SessionMixin):
 class DevicesHandler(RequestHandler, SessionMixin):
     def get(self):
         """GET - returns all devices who's status satisfy the filter."""
-        device_status = self.get_argument('status', None)
+        status = self.get_argument('status', None)
         used_by = self.get_argument('used_by', None)
         ret = None
         if used_by:
-            ret = self._get(device_status, str(used_by))
+            if status:
+                try:
+                    status = DeviceStatus[str(status)].value
+                except KeyError as e:
+                    status = None
+            ret = self._get(status, str(used_by))
         else:
             ret = {
                 'status': 'BAD',
@@ -134,9 +139,8 @@ class DevicesHandler(RequestHandler, SessionMixin):
         self.finish()
 
     def _get(self, status, used_by):
-        device_json = None
+        device_json = []
         with self.make_session() as session:
-            print(DeviceStatus[status].value)
             baked_query = None
             if used_by is 'nurse':
                 baked_query = session.query(NurseDevice)
@@ -144,26 +148,22 @@ class DevicesHandler(RequestHandler, SessionMixin):
                 baked_query = session.query(PatientDevice)
             else:
                 baked_query = session.query(Device)
-            if status:
+            if status and status is not 'ALL':
                 devices = baked_query\
-                    .filter(Device.status == DeviceStatus[status].value)\
+                    .filter(Device.status == status)\
                     .all()
             else:
                 devices = baked_query.all()
             print(devices)
-            device_json = [d_t.serialize() for d_t in devices]
-        if device_json:
-            return {
-                'status': 'OK',
-                'code': 200,
-                'devices': device_json,
-            }
-        else:
-            return {
-                'status': 'FAILED',
-                'code': 500,
-                'error': 'pay me',
-            }
+            if len(devices) is 0:
+                device_json = []
+            else:
+                device_json = [d_t.serialize() for d_t in devices]
+        return {
+            'status': 'OK',
+            'code': 200,
+            'devices': device_json,
+        }
 
 
 class DeviceTypeHandler(RequestHandler, SessionMixin):
