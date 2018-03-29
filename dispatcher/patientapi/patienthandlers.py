@@ -51,11 +51,22 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
     def post(self):
         """Creates a new issue for this patient device."""
         # Get Variables
-        uuid = self.get_argument('device_id')
-        request_id = self.get_argument('request_id')
-        data = self.get_argument('data')
+        print('hit')
+        data = json.loads(self.request.body)
+        ret = None
+        try:
+            uuid = data['device_id']
+            request_id = data['device_request_id']
+            r_data = data['data']
+        except KeyError as ke:
+            ret = {
+                'status': 'BAD',
+                'issue': None,
+                'code': 400,
+            }
         # Verify Valid parameters
-        ret = self._post(uuid, request_id, data)
+        if uuid and request_id and r_data:
+            ret = self._post(uuid, request_id, r_data)
         self.writeout(ret)
         self.set_status(ret['code'])
         self.finish()

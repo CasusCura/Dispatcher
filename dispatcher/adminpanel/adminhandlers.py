@@ -94,12 +94,11 @@ class DeviceHandler(RequestHandler, SessionMixin):
                         .first()
                     device.status = params['status']
                     device.location = params['location']
-                if device:
-                    return {
-                        'status': 'OK',
-                        'device_id': device.id,
-                        'code': 200,
-                    }
+                return {
+                    'status': 'OK',
+                    'device_id': device.id,
+                    'code': 200,
+                }
             return {
                 'status': 'FAILED',
                 'code': 500,
