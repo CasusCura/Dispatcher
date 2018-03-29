@@ -291,8 +291,9 @@ function deviceTypeSelectChange(){
 function addNewPatientDevice(){
 	var element = document.getElementById("selectAddNewDeviceType");
 	var selectedDeviceType = element.options[element.selectedIndex].innerHTML;
+	var serial = document.getElementById("serial").value;
 
-	var deviceDetails = '{"used_by":"patient", "device_type":"' + selectedDeviceType + '", "status":"INACTIVE"}';
+	var deviceDetails = '{"serial":"'+serial+'","used_by":"patient", "device_type":"' + selectedDeviceType + '", "status":"INACTIVE"}';
 
 		$.ajax({
 		type: "POST",
