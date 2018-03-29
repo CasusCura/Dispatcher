@@ -156,13 +156,12 @@ function updateDeviceType(){
 
 	var devType = document.getElementById("deviceType").value;
 
-	var deviceType = '"devicetype":"' + devType+'"';
-	var desc = '"description":"' + document.getElementById("shortDescription").value+'"';
-	var id;
+	var desc = document.getElementById("shortDescription").value;
+	var deviceTypeId;
 
 	var alertTypes = document.getElementById("deviceAlert").children;
 
-	var json = '{"device_type":{"used_by":"patient","product":"'+deviceType+'","product_description":"'+desc+'"}}';
+	var json = '{"device_type":{"used_by":"patient","product":"'+devType+'","product_description":"'+desc+'"}}';
 
 	$.ajax({
 		type: "POST",
@@ -171,7 +170,7 @@ function updateDeviceType(){
 		contentType: "application/json; charset=utf-8",
 		dataType: "json",
 		success: function (data) {
-			id=data.devicetype_id;
+			deviceTypeId=data.devicetype_id;
 		},
 		error: function (msg) {
 			alert(msg);
@@ -186,7 +185,22 @@ function updateDeviceType(){
 		var name = inputs[1].value;
 		var description = inputs[3].value;
 		var priority = inputs[5].value;
-		var fullAlert='{"name":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}';
+		alerts.push('{"id":"'+name+'", "description":"'+description+'","priority":"'+priority+'"}');
+	});
+	var requestTypesJson = '{"request_types":['+alerts+']}';
+	$.ajax({
+		type: "POST",
+		url: 'requesttypes',
+		data: requestTypesJson,
+		contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function (data) {
+
+		},
+		error: function (msg) {
+			alert(msg);
+			alert(requestTypesJson);
+		}
 	});
 }
 
