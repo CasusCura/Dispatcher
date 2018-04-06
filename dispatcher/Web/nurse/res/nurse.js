@@ -123,12 +123,12 @@ $(function() {
         'uuid': uuid
       },
       dataType: "json",
-  	}).fail(() => {
+  	}).done(() => {
       document.getElementById('responding').classList.remove('is-invisible');
       document.getElementById('pending').classList.remove('is-invisible');
       document.getElementById('nurseLogin').classList.remove('is-active');
       setInterval(main, 5000);
-    }).done(() => {
+    }).fail(() => {
       alert("Invalid nurse UUID");
     });
   }
