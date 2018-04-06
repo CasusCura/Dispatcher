@@ -11,7 +11,7 @@
 
 	<body>
 
-		<div id="nurseLogin" class="modal is-active fadeOut">
+		<div id="nurseLogin" class="modal is-active">
 		  <div class="modal-background"></div>
 		  <div class="modal-card">
 		    <header class="modal-card-head">
@@ -31,63 +31,84 @@
 		  </div>
 		</div>
 
-		<!-- The page -->
+		<div id="responding-modal" class="modal">
+		  <div class="modal-background"></div>
+		  <div class="modal-card">
+		    <header class="modal-card-head">
+		      <p id="responding-modal-title" class="modal-card-title"></p>
+		      <button id="responding-modal-close-upper" class="delete" aria-label="close"></button>
+		    </header>
+		    <section class="modal-card-body">
+		    	<div class="content">
+		    		<h2>Issue Description</h2>
+			    	<p id="responding-modal-description">
+			    	</p>
+			    	<h2>ETA</h2>
+			    	<h3 id="responding-modal-eta"></h3>
+		    	</div>
+		    </section>
+		    <footer class="modal-card-foot">
+		      <button id="responding-modal-submit" class="button is-success">Resolve</button>
+		      <button id="responding-modal-cancel" class="button is-danger">Cancel</button>
+		      <button id="responding-modal-close" class="button">Close</button>
+		    </footer>
+		  </div>
+		</div>
+
+		<div id="pending-modal" class="modal">
+		  <div class="modal-background"></div>
+		  <div class="modal-card">
+		    <header class="modal-card-head">
+		      <p id="pending-modal-title" class="modal-card-title"></p>
+		      <button id="pending-modal-close-upper" class="delete" aria-label="close"></button>
+		    </header>
+		    <section class="modal-card-body">
+		    	<div class="content">
+		    		<h2>Issue Description</h2>
+			    	<p id="pending-modal-description">
+			    	</p>
+		    	</div>
+		      	<div class="field">
+				  <label class="label">Response Time</label>
+				  <div class="control">
+				    <input id="pending-modal-eta" class="input" type="number" placeholder="minutes">
+				  </div>
+				</div>
+		    </section>
+		    <footer class="modal-card-foot">
+		      <button id="pending-modal-submit" class="button is-success">Respond</button>
+		      <button id="pending-modal-close" class="button">Close</button>
+		    </footer>
+		  </div>
+		</div>
+
+		<!-- The Tiles -->
 		<section class="is-invisible fadeIn" id="responding">
 			<h1 class="title is-1 has-text-centered">Responding</h1>
-			<div id="respond-tiles" class="container">
-
-				<div class="container">
-					<div class="tile is-ancestor">
-					  <div class="tile is-vertical is-12">
-					    <div class="tile">
-					      <div class="tile is-parent is-vertical">
-					        <article class="tile is-child notification is-primary">
-					          <p class="title">Room {num}</p>
-					          <p class="subtitle">{Issue Type}</p>
-					        </article>
-					      </div>
-				      </div>
-					</div>
-					<div class="modal">
-					  <div class="modal-background"></div>
-					  <div class="modal-card">
-					    <header class="modal-card-head">
-					      <p class="modal-card-title">Modal title</p>
-					      <button class="delete" aria-label="close"></button>
-					    </header>
-					    <section class="modal-card-body">
-					      <!-- Content ... -->
-					    </section>
-					    <footer class="modal-card-foot">
-					      <button class="button is-success">Save changes</button>
-					      <button class="button">Cancel</button>
-					    </footer>
-					  </div>
-					</div>
-				</div>
-
+			<div id="responding-tiles" class="container">
 			</div>
 		</section>
 
 		<section class="is-invisible" id="pending">
 			<h1 class="title is-1 has-text-centered">Pending</h1>
 			<div id="pending-tiles" class="container">
-
-				<div class="container">
-					<div class="tile is-ancestor">
-					  <div class="tile is-vertical is-12">
-					    <div class="tile">
-					      <div class="tile is-parent is-vertical">
-					        <article class="tile is-child notification is-danger">
-					          <p class="title">Room {num}</p>
-					          <p class="subtitle">{Patient Name}</p>
-					        </article>
-					      </div>
-				      </div>
-					</div>
-				</div>
-
 			</div>
 		</section>
+
+
+		<!-- A skeleton to create a card -->
+		<div id="copy" class="container is-invisible">
+			<div class="tile is-ancestor">
+			  <div class="tile is-vertical is-12">
+			    <div class="tile">
+			      <div class="tile is-parent is-vertical">
+			        <article class="tile is-child notification">
+			          <p class="title room-number"></p>
+			          <p class="subtitle issue-type"></p>
+			        </article>
+			      </div>
+		      </div>
+			</div>
+		</div>
 	</body>
 </html>
