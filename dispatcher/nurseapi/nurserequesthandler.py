@@ -9,10 +9,11 @@ import json
 
 class NurseVerificationHandler(RequestHandler, SessionMixin):
     def post(self):
-        data = json.loads(self.request.body)
+        print(self.request.body)
         ret = None
         uuid = None
         try:
+            data = json.loads(self.request.body)
             uuid = data['uuid']
         except KeyError as ke:
             ret = {

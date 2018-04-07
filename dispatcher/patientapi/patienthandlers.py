@@ -51,8 +51,6 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
     def post(self):
         """Creates a new issue for this patient device."""
         # Get Variables
-        print('hit')
-        print(self.request.body)
         data = json.loads(self.request.body)
         request_id = None
         r_data = None
@@ -84,26 +82,26 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
             device = session.query(Device)\
                 .filter(Device.id == device_id.encode())\
                 .first()
-            if device:
-                request_type = session.query(RequestType)\
-                    .filter(RequestType.devicetype == device.devicetype)\
-                    .all()
-                print([t.serialize() for t in request_type])
-            # Handle invalid rid
-                if len(request_type) != 1:
-                    return {'status': 'BAD', 'code': 400}
-                request_type = request_type[0]
-                # Create Issue
-                issue = Issue(device_id, request_type.id, request_type.priority)
-                session.add(issue)
-                if request_data:
-                    requestdata = RequestData(device_id, issue.id,
-                                              json.load(request_data))
-                    session.add(requestdata)
-                if issue:
-                    return {'status': 'OK', 'issueid': str(issue.id)[2:-1],'code': 200 }
-                else:
-                    return {'status': 'BAD', 'error': 'nothing found', 'code': 400}
+            print(device)
+            request_type = session.query(RequestType)\
+                .filter(RequestType.devicetype == device.devicetype)\
+                .all()
+            print([t.serialize() for t in request_type])
+        # Handle invalid rid
+            if len(request_type) != 1:
+                return {'status': 'BAD', 'code': 400}
+            request_type = request_type[0]
+            # Create Issue
+            issue = Issue(device_id, request_type.id, request_type.priority)
+            session.add(issue)
+            if request_data:
+                requestdata = RequestData(device_id, issue.id,
+                                          json.load(request_data))
+                session.add(requestdata)
+            if issue:
+                return {'status': 'OK', 'issueid': str(issue.id)[2:-1],'code': 200 }
+            else:
+                return {'status': 'BAD', 'error': 'nothing found', 'code': 400}
 
     def update(self):
         """Adds request data or updates repeated issue."""
@@ -128,6 +126,70 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
             else:
                 self.set_status(500)
         self.finish()
+
+
+class PatientRequest1Handler(RequestHandler, SessionMixin):
+
+    def post(self):
+        """Creates a new issue for this patient device."""
+        # Get Variables
+        data = str(self.request.body)
+        tokens = data.split('&')
+        uuid = tokens[0].split('=')[1].replace('-', '')
+        request_id = tokens[1].split('=')[1][:-1]
+        r_data = {}
+        #request_id = None
+        #r_data = None
+        #uuid = None
+        ret = None
+        #try:
+        #    uuid_uuid = self.get_argument('device_id')
+        #    uuid = uuid_uuid.replace('-', '')
+        #    request_id = self.get_argument('request_id')
+        #    r_data = {}
+        #except KeyError as ke:
+        #    ret = {
+        #        'status': 'BAD',
+        #        'issue': None,
+        #        'code': 400,
+        #    }
+        print(uuid, request_id, r_data)
+        # Verify Valiparameters
+        ret = self._post(uuid, request_id, r_data)
+        self.write(ret)
+        self.set_status(ret['code'])
+        self.finish()
+
+    def _post(self, device_id, request_id, request_data):
+        device = None
+        request_type = None
+        issue = None
+        with self.make_session() as session:
+            device = session.query(Device)\
+                .filter(Device.id == device_id.encode())\
+                .first()
+            print(device)
+            if device:
+                request_type = session.query(RequestType)\
+                    .filter(RequestType.devicetype == device.devicetype)\
+                    .all()
+                print([t.serialize() for t in request_type])
+            # Handle invalid rid
+                if len(request_type) != 1:
+                    return {'status': 'BAD', 'code': 400}
+                request_type = request_type[0]
+                # Create Issue
+                issue = Issue(device_id, request_type.id, request_type.priority)
+                session.add(issue)
+                if request_data:
+                    requestdata = RequestData(device_id, issue.id,
+                                              json.load(request_data))
+                    session.add(requestdata)
+                if issue:
+                    return {'status': 'OK', 'issueid': str(issue.id)[2:-1],'code': 200 }
+                else:
+                    return {'status': 'BAD', 'error': 'nothing found', 'code': 400}
+
 
 
 class PatientTestHandler(RequestHandler, SessionMixin):

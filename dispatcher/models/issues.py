@@ -52,7 +52,7 @@ class Issue(Base):
     def serialize(self, **kwargs):
         return {
             'id': self.id,
-            'location': self.device.location,
+            'location': '',
             'name': self.request_type.device_request_id,
             'description': self.request_type.description,
             'priority': self.discriminator,
