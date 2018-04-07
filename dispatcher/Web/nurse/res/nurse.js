@@ -1,3 +1,4 @@
+const base = "https://api.svh/nurse"
 let uuid = "";
 let failed = false;
 
@@ -5,22 +6,49 @@ let showRepondingModal = issue => {
   document.getElementById('responding-modal-title').textContent = issue.name;
   document.getElementById('responding-modal-description').textContent = issue.description;
   document.getElementById('responding-modal-eta').textContent = issue.status;
+
   document.getElementById('responding-modal-submit').onclick = (issue => {
     return () => {
-      //TODO Mark the issue as resolved with the API
+      $.ajax({
+        method: "POST",
+        url: `${base}/close`,
+        data: {
+          'nurse_id': uuid,
+          'issue_id': issue.id
+        },
+        dataType: "json",
+      }).done(() => {
+        document.getElementById('pending-modal').classList.remove('is-active');;
+      }).fail(() => {
+        alert("Error communicating with the server, please try again later.");
+      });
 
       //refresh the lists
       main();
     };
   })(issue);
+
   document.getElementById('responding-modal-cancel').onclick = (issue => {
     return () => {
-      //TODO Mark the issue as cancelled with the API
+      $.ajax({
+        method: "POST",
+        url: `${base}/close`,
+        data: {
+          'issue_id': issue.id
+          'nurse_id': uuid
+        },
+        dataType: "json",
+      }).done(() => {
+        document.getElementById('pending-modal').classList.remove('is-active');;
+      }).fail(() => {
+        alert("Error communicating with the server, please try again later.");
+      });
 
       //refresh the lists
       main();
     };
   })(issue);
+
   document.getElementById('responding-modal').classList.add('is-active');
 }
 
@@ -29,7 +57,23 @@ let showPendingModal = issue => {
   document.getElementById('pending-modal-description').textContent = issue.description;
   document.getElementById('pending-modal-submit').onclick = (issue => {
     return () => {
-      //TODO submit the issue to the API
+      $.ajax({
+        method: "POST",
+        url: `${base}/response`,
+        data: {
+          'issue_id': issue.id,
+          'nurse_id': uuid,
+
+
+          'data': {}
+        },
+        dataType: "json",
+      }).done(() => {
+        document.getElementById('pending-modal').classList.remove('is-active');;
+      }).fail(() => {
+        alert("Error communicating with the server, please try again later.");
+      });
+
 
       //Refresh the lists
       main();
@@ -69,8 +113,8 @@ let main = () => {
     return;
   }
   $.ajax({
-    method: "POST",
-    url: "http://dsadsad.dsadsa",
+    method: "GET",
+    url: `${base}/myissues`,
     data: {
       'uuid': uuid
     },
@@ -118,7 +162,7 @@ $(function() {
   	let uuid = document.getElementById("uuid").value;
     $.ajax({
       method: "POST",
-      url: "http://fdsfsd.fdsf",
+      url: `${base}/login`,
   		data: {
         'uuid': uuid
       },
