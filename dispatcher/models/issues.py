@@ -49,6 +49,16 @@ class Issue(Base):
         self.priority = priority
         self.status = IssueStates.PENDING
 
+    def serialize(self, **kwargs):
+        return {
+            'id': self.id,
+            'location': '',
+            'name': self.request_type.device_request_id,
+            'description': self.request_type.description,
+            'priority': self.discriminator,
+            'status': self.status,
+        }
+
 
 class Response(Base):
     """Represents a nurse saying they will tend to this issue in a given amount
@@ -75,6 +85,20 @@ class Response(Base):
         self.last_eta = eta
         self.data = json.dumps(data)
 
+    def __str__(self):
+        return self.serialize()
+
+    def serialize(self, **kwargs):
+        return {
+            'id': self.id,
+            'issueid': self.issueid,
+            'nursedevice': self.nursedevice,
+            'first_issued': self.first_issued,
+            'time_updated': self.time_updated,
+            'last_eta': self.last_eta,
+            'data': self.data
+        }
+
 
 class RequestData(Base):
     """Allows devices to send data, or update fragments to an issue of any
@@ -92,6 +116,19 @@ class RequestData(Base):
         self.patientdevice = patientdevice
         self.data = json.dumps(data)
 
+    def __str__(self):
+        return self.serialize()
+
+    def serialize(self, **kwargs):
+        return {
+            'id': self.id,
+            'issueid': self.issueid,
+            'nursedevice': self.nursedevice,
+            'patientdevice': self.patientdevice,
+            'timestamp': self.timestamp,
+            'data': self.data
+        }
+
 
 class RequestType(Base):
     """This defines what kind've issue it is so that Nurses can read the type
@@ -100,15 +137,24 @@ class RequestType(Base):
     id = Column(String(32), primary_key=True)
     device_request_id = Column(String, nullable=False)
     devicetype = Column(String(32), ForeignKey('devicetypes.id'))
-    name = Column(String(50), nullable=False)
     description = Column(String(200), nullable=False)
     priority = Column(Integer, nullable=False)
 
-    def __init__(self, id: String, name: String, description: String,
+    def __init__(self, id: String, description: String,
                  devicetype: String, priority: int):
         self.id = str(uuid.uuid4().hex).encode('ascii')
         self.device_request_id = id
-        self.name = name
         self.description = description
         self.devicetype = devicetype
         self.priority = priority
+
+    def serialize(self, **kwargs):
+        id = str(self.id)[2:-1]
+        dev_type = str(self.devicetype)[2:-1]
+        return {
+            'id': id,
+            'devicetype': dev_type,
+            'request_id': self.device_request_id,
+            'description': self.description,
+            'priority': self.priority,
+        }

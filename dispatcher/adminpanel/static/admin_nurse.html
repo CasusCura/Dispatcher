@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script type="text/javascript" src="res/jquery-3.3.1.min.js"></script>
-		<script type="text/javascript" src="res/admin.js"></script>
-		<script type="text/javascript" src="res/datatables/datatables.min.js"></script>
-		<script async type="text/javascript" src="res/bulma.js"></script>
+		<script type="text/javascript" src="../js/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="../js/datatables/datatables.min.js"></script>
+		<script async type="text/javascript" src="../js/bulma.js"></script>
 
-		<link rel="stylesheet" type="text/css" href="res/datatables/datatables.min.css"></link>
-		<link rel="stylesheet" type="text/css" href="res/bulma.css"></link>
+		<link rel="stylesheet" type="text/css" href="../js/datatables/datatables.min.css"></link>
+		<link rel="stylesheet" type="text/css" href="../js/bulma.css"></link>
 		<link rel="icon" type="image/png" href="favicon.ico" />
+
+		<title>SVH Admin Panel</title>
 	</head>
 
 	<body>
@@ -25,10 +26,10 @@
 				</div>
 				<div id="navMenu" class="navbar-menu">
 					<div class="navbar-start">
-						<a class="navbar-item" href="admin.html">
+						<a class="navbar-item" href="/admin/">
 							Patient Devices
 						</a>
-						<a class="navbar-item" href="admin.html">
+						<a class="navbar-item" href="/admin/nurse/">
 							Nurse Devices
 						</a>
 					</div>
@@ -42,7 +43,7 @@
 				<div class="column is-3">
 					<aside class="menu">
 						<p class="menu-label">
-							Patient Devices
+							Nurse Devices
 						</p>
 						<ul class="menu-list">
 							<li><a id="ALL" class="is-active" onclick="filterTable('ALL')">All</a></li>
@@ -56,8 +57,7 @@
 						</p>
 						<ul class="menu-list">
 							<li><a href="#" onclick="openManageDeviceTypeModal()">Manage Device Types</a></li>
-							<li><a href="#" onClick="openAddDeviceModal()">Add New Patient Device</a></li>
-							<li><a href="#" onClick="openAlertTypesModal()">Manage Alert Types</a></li>
+							<li><a href="#" onClick="openAddDeviceModal()">Add New Nurse Device</a></li>
 						</ul>
 
 					</aside>
@@ -66,10 +66,11 @@
 					<table id="deviceTable">
 						<thead>
 							<tr>
-								<th> Device Id</th>
+								<th> Serial</th>
 								<th> Device Type</th>
 								<th> Device Status</th>
 								<th> Device Location</th>
+								<th> Device Id</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -84,21 +85,28 @@
 			<div class="modal-background" onClick="closeModal()"></div>
 			<div class="modal-card">
 				<header class="modal-card-head">
-					<p class="modal-card-title">Modal title</p>
+					<p class="modal-card-title">Device Edit</p>
 					<button class="delete" aria-label="close" onClick="closeModal()"></button>
 				</header>
 				<section class="modal-card-body">
 					<div class="field">
 						<label class="label">Device Id</label>
 						<div class="control">
-							<input id="id" class="input" type="text" >
+							<input id="id" class="input" type="text" readonly>
 						</div>
 					</div>
 
 					<div class="field">
 						<label class="label">Device Type</label>
 						<div class="control">
-							<input id="devicetype" class="input" type="text" >
+							<input id="devicetype" class="input" type="text" readonly>
+						</div>
+					</div>
+
+					<div class="field">
+						<label class="label">Serial Number</label>
+						<div class="control">
+							<input id="serial" class="input" type="text" readonly>
 						</div>
 					</div>
 
@@ -135,18 +143,18 @@
 					</div>
 				</section>
 				<footer class="modal-card-foot">
-					<button class="button is-success" onClick="updatePatientDev()">Save changes</button>
+					<button class="button is-success" onClick="updateNurseDev()">Save changes</button>
 					<button class="button" onClick="closeModal()">Cancel</button>
 				</footer>
 			</div>
 		</div>
 
-	<!-- Add new patient device modal -->
+	<!-- Add new nurse device modal -->
 			<div class="modal" id="addDeviceModal">
 			<div class="modal-background" onClick="closeModal()"></div>
 			<div class="modal-card">
 				<header class="modal-card-head">
-					<p class="modal-card-title">Modal title</p>
+					<p class="modal-card-title">Add New Nurse Device</p>
 					<button class="delete" aria-label="close" onClick="closeModal()"></button>
 				</header>
 				<section class="modal-card-body">
@@ -159,14 +167,14 @@
 					</div>
 
 					<div class="field">
-						<label class="label">Device Id</label>
+						<label class="label">Serial Number</label>
 						<div class="control">
-							<input id="deviceId" class="input" type="text" >
+							<input id="newSerial" class="input" type="text" >
 						</div>
 					</div>
 				</section>
 				<footer class="modal-card-foot">
-					<button class="button is-success" onClick="addNewPatientDevice()">Save changes</button>
+					<button class="button is-success" onClick="addNewNurseDevice()">Save changes</button>
 					<button class="button" onClick="closeModal()">Cancel</button>
 				</footer>
 			</div>
@@ -178,15 +186,15 @@
 			<div class="modal-background" onClick="closeModal()"></div>
 			<div class="modal-card">
 				<header class="modal-card-head">
-					<p class="modal-card-title">Modal title</p>
+					<p class="modal-card-title">Manage Device Types</p>
 					<button class="delete" aria-label="close" onClick="closeModal()"></button>
 				</header>
-				<section class="modal-card-body">
+				<section class="modal-card-body" id="deviceTypesBody">
 					<div class="field">
-					<label class="label">Existing Device Types</label>
+						<label class="label">Existing Device Types</label>
 						<div class="select">
 							<select id="selectManageDeviceTypes" onchange="deviceTypeSelectChange()">
-							<option>[Add a New Device Type]</option>
+								<option>[Add a New Device Type]</option>
 							</select>
 						</div>
 					</div>
@@ -204,6 +212,7 @@
 							<input id="shortDescription" class="input" type="text">
 						</div>
 					</div>
+
 				</section>
 				<footer class="modal-card-foot">
 					<button class="button is-success" onClick="updateDeviceType()">Save changes</button>
@@ -211,59 +220,7 @@
 				</footer>
 			</div>
 		</div>
+		<script type="text/javascript" src="../js/admin_nurse.js"></script>
 
-
-	<!-- Manage alert types modal -->
-		<div class="modal" id="editAlertTypesModal">
-			<div class="modal-background" onClick="closeModal()"></div>
-			<div class="modal-card">
-				<header class="modal-card-head">
-					<p class="modal-card-title">Modal title</p>
-					<button class="delete" aria-label="close" onClick="closeModal()"></button>
-				</header>
-				<section class="modal-card-body">
-					<div class="field">
-					<label class="label">Existing Alert Types</label>
-						<div class="select">
-							<select id="selectAlertTypes" onchange="alertTypeSelectChange()">
-							<option>[Add a New Alert Type]</option>
-							</select>
-						</div>
-					</div>
-
-					<div class="field">
-						<label class="label">Alert Type</label>
-						<div class="control">
-							<input id="alertType" class="input" type="text">
-						</div>
-					</div>
-
-					<div class="field">
-						<label class="label">Alert Id</label>
-						<div class="control">
-							<input id="alertId" class="input" type="text" readonly>
-						</div>
-					</div>
-
-					<div class="field">
-						<label class="label">Alert Priority</label>
-						<div class="control">
-							<input id="alertPriority" class="input" type="number">
-						</div>
-					</div>
-
-					<div class="field">
-						<label class="label">Short Description</label>
-						<div class="control">
-							<input id="alertShortDescription" class="input" type="text">
-						</div>
-					</div>
-				</section>
-				<footer class="modal-card-foot">
-					<button class="button is-success" onClick="updateAlertType()">Save changes</button>
-					<button class="button" onClick="closeModal()">Cancel</button>
-				</footer>
-			</div>
-		</div>
 	</body>
 </html>
