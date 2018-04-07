@@ -1,4 +1,4 @@
-const base = "https://api.svh/nurse"
+const base = "/nurse"
 let uuid = "";
 let failed = false;
 
@@ -34,7 +34,7 @@ let showRepondingModal = issue => {
         method: "POST",
         url: `${base}/close`,
         data: {
-          'issue_id': issue.id
+          'issue_id': issue.id,
           'nurse_id': uuid
         },
         dataType: "json",

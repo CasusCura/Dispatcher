@@ -1,11 +1,13 @@
-from dispatcher.nurseapi.nurserequesthandler import (NurseVerificationHandler,
+from dispatcher.nursepanel.nurserequesthandler import (PanelHandler,
+													 NurseVerificationHandler,
                                                      MyIssuesHandler,
                                                      ResponseHandler,
                                                      CloseIssueHandler)
 
-from dispatcher.nurseapi.router import NurseRouter
+from dispatcher.nursepanel.router import NurseRouter
 
-__all__ = ['NurseVerificationHandler',
+__all__ = ['PanelHandler',
+		   'NurseVerificationHandler',
            'MyIssuesHandler',
            'ResponseHandler',
            'CloseIssueHandler',

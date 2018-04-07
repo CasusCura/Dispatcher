@@ -6,6 +6,11 @@ from dispatcher.models import (NurseDevice,
                                Issue)
 import json
 
+class PanelHandler(RequestHandler, SessionMixin):
+    def get(self):
+        """Render the panel."""
+        self.render('static/index.html')
+
 
 class NurseVerificationHandler(RequestHandler, SessionMixin):
     def post(self):

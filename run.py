@@ -11,7 +11,7 @@ from dispatcher import configs
 def create_router():
     from dispatcher.patientapi import PatientRouter
     app_router = PatientRouter()
-    from dispatcher.nurseapi import NurseRouter
+    from dispatcher.nursepanel import NurseRouter
     app_router.append(NurseRouter())
     from dispatcher.adminpanel import AdminRouter
     app_router.append(AdminRouter())
