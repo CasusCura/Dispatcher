@@ -18,7 +18,7 @@ let showRepondingModal = issue => {
         },
         dataType: "json",
       }).done(() => {
-        document.getElementById('pending-modal').classList.remove('is-active');;
+        document.getElementById('responding-modal').classList.remove('is-active');;
       }).fail(() => {
         alert("Error communicating with the server, please try again later.");
       });
@@ -39,7 +39,7 @@ let showRepondingModal = issue => {
         },
         dataType: "json",
       }).done(() => {
-        document.getElementById('pending-modal').classList.remove('is-active');;
+        document.getElementById('responding-modal').classList.remove('is-active');;
       }).fail(() => {
         alert("Error communicating with the server, please try again later.");
       });
