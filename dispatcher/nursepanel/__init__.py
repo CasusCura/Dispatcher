@@ -1,14 +1,15 @@
-from dispatcher.nursepanel.nurserequesthandler import (PanelHandler,
-													 NurseVerificationHandler,
-                                                     MyIssuesHandler,
-                                                     ResponseHandler,
-                                                     CloseIssueHandler)
+from dispatcher.nursepanel.nurserequesthandler import (
+	PanelHandler,
+	NurseVerificationHandler,
+	IssuesHandler,
+	ResponseHandler,
+	CloseIssueHandler)
 
 from dispatcher.nursepanel.router import NurseRouter
 
 __all__ = ['PanelHandler',
 		   'NurseVerificationHandler',
-           'MyIssuesHandler',
+           'IssuesHandler',
            'ResponseHandler',
            'CloseIssueHandler',
            'NurseRouter']

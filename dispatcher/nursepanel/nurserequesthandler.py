@@ -50,27 +50,46 @@ class NurseVerificationHandler(RequestHandler, SessionMixin):
         self.finish()
 
 
-class MyIssuesHandler(RequestHandler, SessionMixin):
+class IssuesHandler(RequestHandler, SessionMixin):
     def get(self):
         uuid = self.get_argument('uuid', None)
         print(self.request)
         print('uuid', uuid)
         if uuid:
             with self.make_session() as session:
-                queued_issues = session.query(Response)\
-                    .filter(Response.nursedevice == uuid.encode(),
-                            Response.issue.status == IssueStates.QUEUED)\
+                active_issues = session.query(Issue)\
+                    .filter(Issue.status == IssueStates.QUEUED)\
                     .all()
-                pending_issues = session.query(Response)\
-                    .filter(Response.issue.status == IssueStates.PENDING)\
+                my_active_issues = []
+                other_active_issues = []
+                for issue in active_issues:
+                    responses = session.query(Response)\
+                        .filter(Response.issueid == issue.id)\
+                        .all()
+                    for response in responses:
+                        print(response.nursedevice, uuid)
+                        if response.nursedevice == uuid:
+                            my_active_issues.append(issue)
+                        else:
+                            other_active_issues.append(issue)
+                pending_issues = session.query(Issue)\
+                    .filter(Issue.status == IssueStates.PENDING)\
                     .all()
-                queued_issues_json = [qi.serialize() for qi in queued_issues]
-                pending_issues_json = [pi.serialize() for pi in pending_issues]
+                my_queued_issues_json = [qi.serialize()
+                                         for qi
+                                         in my_active_issues]
+                other_queued_issues_json = [qi.serialize()
+                                            for qi
+                                            in other_active_issues]
+                pending_issues_json = [pi.serialize()
+                                       for pi
+                                       in pending_issues]
                 ret = {
                     'code': 200,
                     'status': 'OK',
                     'pending_issues': pending_issues_json,
-                    'queued_issues': queued_issues_json,
+                    'my_queued_issues': my_queued_issues_json,
+                    'other_queued_issues': other_queued_issues_json,
                 }
         else:
             ret = {
@@ -103,13 +122,17 @@ class ResponseHandler(RequestHandler, SessionMixin):
 
     def _post(self, params):
         with self.make_session() as session:
+            issue = session.query(Issue)\
+                .filter(Issue.id == params['issue_id'].encode())\
+                .first()
             response = Response(
-                    params['issue_id'],
-                    params['nurse_id'],
-                    params['eta'],
-                    params['data']
+                    issueid=issue.id,
+                    eta=params['eta'],
+                    nursedeviceid=params['nurse_id'],
+                    data=params['data']
             )
             session.add(response)
+            issue.status = IssueStates.QUEUED
             if response:
                 return {
                     'code': 200,
@@ -126,6 +149,7 @@ class ResponseHandler(RequestHandler, SessionMixin):
 
 class CloseIssueHandler(RequestHandler, SessionMixin):
     def post(self):
+        print(self.request.body)
         data = json.loads(self.request.body)
         issue_id = None
         nurse_id = None
@@ -149,7 +173,7 @@ class CloseIssueHandler(RequestHandler, SessionMixin):
             issue = session.query(Issue)\
                 .filter(Issue.id == issue_id.encode())\
                 .first()
-            issue.status = 3
+            issue.status = IssueStates.CLOSED
             return {
                 'code': 200,
                 'status': 'ok'

@@ -12,10 +12,10 @@ let showRepondingModal = issue => {
       $.ajax({
         method: "POST",
         url: `${base}/close`,
-        data: {
+        data: JSON.stringify({
           'nurse_id': uuid,
           'issue_id': issue.id
-        },
+        }),
         dataType: "json",
       }).done(() => {
         document.getElementById('responding-modal').classList.remove('is-active');;
@@ -30,20 +30,20 @@ let showRepondingModal = issue => {
 
   document.getElementById('responding-modal-cancel').onclick = (issue => {
     return () => {
-      $.ajax({
+  /*    $.ajax({
         method: "POST",
         url: `${base}/close`,
-        data: {
+        data: JSON.stringify({
           'issue_id': issue.id,
-          'nurse_id': uuid
-        },
+          'nurse_id': uuid,
+        }),
         dataType: "json",
       }).done(() => {
         document.getElementById('responding-modal').classList.remove('is-active');;
       }).fail(() => {
         console.log("Error communicating with the server, please try again later.");
       });
-
+*/
       //refresh the lists
       main();
     };
@@ -60,13 +60,12 @@ let showPendingModal = issue => {
       $.ajax({
         method: "POST",
         url: `${base}/response`,
-        data: {
+        data: JSON.stringify({'response': {
           'issue_id': issue.id,
           'nurse_id': uuid,
-
-
+          'eta': document.getElementById('pending-modal-eta').value,
           'data': {}
-        },
+        }}),
         dataType: "json",
       }).done(() => {
         document.getElementById('pending-modal').classList.remove('is-active');;
@@ -83,6 +82,7 @@ let showPendingModal = issue => {
 }
 
 let buildCard = (issue, responding) => {
+      console.log(issue)
       let copy = document.getElementById("copy").cloneNode(true);
       copy.removeAttribute('id');
       copy.classList.remove('is-invisible');
@@ -114,11 +114,10 @@ let main = () => {
   }
   $.ajax({
     method: "GET",
-    url: `${base}/myissues`,
+    url: `${base}/issues`,
     data: {
       'uuid': uuid
-    },
-    dataType: "json",
+    }
   }).done(results => {
     let responding = document.getElementById("responding-tiles");
     let pending = document.getElementById("pending-tiles");
@@ -126,12 +125,12 @@ let main = () => {
     removeChildren(responding);
     removeChildren(pending);
 
-    results.data.queued_issues.forEach(issue => {
+    results.my_queued_issues.forEach(issue => {
       let card = buildCard(issue, true);
       responding.appendChild(card);
     });
 
-    results.data.pending_issues.forEach(issue => {
+    results.pending_issues.forEach(issue => {
       let card = buildCard(issue, false)
       pending.appendChild(card);
     });
@@ -170,6 +169,7 @@ $(function() {
       contentType: "application/json; charset=utf-8",
       dataType: "json",
   	}).done(() => {
+      uuid = document.getElementById("uuid").value,
       document.getElementById('responding').classList.remove('is-invisible');
       document.getElementById('pending').classList.remove('is-invisible');
       document.getElementById('nurseLogin').classList.remove('is-active');

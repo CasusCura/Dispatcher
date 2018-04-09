@@ -22,7 +22,7 @@ $(document).ready(function(){
 
 	filterTable("ALL");
 
-	addAlertDiv();
+	//addAlertDiv();
 })
 
 //Get the list of devices from the service & populate the main table
@@ -58,7 +58,7 @@ function filterTable(filter){
 			});
 		},
 		error: function (msg) {
-			alert(msg);
+			//alert(msg);
 		}
 	});
 	table.draw();
@@ -81,7 +81,7 @@ function populateDeviceEditDialog(devId){
 				document.getElementById("serial").value=data.device.serial_number;
 		},
 		error: function (msg) {
-			alert(msg);
+			//alert(msg);
 		}
 	});
 }
@@ -105,8 +105,8 @@ function updatePatientDev(){
 
 		},
 		error: function (msg) {
-			alert(msg);
-			alert(deviceDetails);
+			//alert(msg);
+			//alert(deviceDetails);
 		}
 	});
 	document.getElementById("DeviceEditModal").className="modal";
@@ -198,16 +198,16 @@ function updateDeviceType(){
 
 					},
 					error: function (msg) {
-						alert(msg);
-						alert(requestTypesJson);
+						//alert(msg);
+						//alert(requestTypesJson);
 					}
 				});
 			});
 			document.getElementById("manageDeviceTypesModal").className="modal";
 		},
 		error: function (msg) {
-			alert(msg);
-			alert(json);
+			//alert(msg);
+			//alert(json);
 		}
 	});
 
@@ -238,7 +238,7 @@ function populateManageDeviceTypeSelect(){
 			});
 		},
 		error: function (msg) {
-			alert(msg);
+			//alert(msg);
 		}
 	});
 }
@@ -265,7 +265,7 @@ function populateAddDeviceTypeSelect(){
 			});
 		},
 		error: function (msg) {
-			alert(msg);
+			//alert(msg);
 		}
 	});
 }
@@ -292,7 +292,7 @@ function deviceTypeSelectChange(){
 		},
 		error: function (msg) {
 			//Temp JSON
-			alert(msg);
+			//alert(msg);
 		}
 	});
 }
@@ -314,8 +314,8 @@ function addNewPatientDevice(){
 			document.getElementById("addDeviceModal").className="modal";
 		},
 		error: function (msg) {
-			alert(msg);
-			alert(deviceDetails);
+			//alert(msg);
+			//alert(deviceDetails);
 		}
 	});
 }

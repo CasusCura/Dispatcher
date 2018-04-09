@@ -1,7 +1,7 @@
 from dispatcher import SimpleRouter
 from dispatcher.nursepanel import (PanelHandler,
                                    NurseVerificationHandler,
-                                   MyIssuesHandler,
+                                   IssuesHandler,
                                    ResponseHandler,
                                    CloseIssueHandler)
 
@@ -14,7 +14,7 @@ class NurseRouter(SimpleRouter):
         self.routes = [
             (r'/nurse/', PanelHandler),
             (r'/nurse/login', NurseVerificationHandler),
-            (r'/nurse/myissues', MyIssuesHandler),  # I have many
+            (r'/nurse/issues', IssuesHandler),  # I have many
             (r'/nurse/response', ResponseHandler),
             (r'/nurse/close', CloseIssueHandler),
             (r'/nurse/(favicon.ico)',
