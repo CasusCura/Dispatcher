@@ -20,7 +20,7 @@ let showRepondingModal = issue => {
       }).done(() => {
         document.getElementById('responding-modal').classList.remove('is-active');;
       }).fail(() => {
-        alert("Error communicating with the server, please try again later.");
+        console.log("Error communicating with the server, please try again later.");
       });
 
       //refresh the lists
@@ -41,7 +41,7 @@ let showRepondingModal = issue => {
       }).done(() => {
         document.getElementById('responding-modal').classList.remove('is-active');;
       }).fail(() => {
-        alert("Error communicating with the server, please try again later.");
+        console.log("Error communicating with the server, please try again later.");
       });
 
       //refresh the lists
@@ -71,7 +71,7 @@ let showPendingModal = issue => {
       }).done(() => {
         document.getElementById('pending-modal').classList.remove('is-active');;
       }).fail(() => {
-        alert("Error communicating with the server, please try again later.");
+        console.log("Error communicating with the server, please try again later.");
       });
 
 
@@ -136,7 +136,7 @@ let main = () => {
       pending.appendChild(card);
     });
   }).fail(()=> {
-    alert("Failed to retrieve issues. Please Refresh.")
+    console.log("Failed to retrieve issues. Please Refresh.")
   });
 };
 
@@ -159,13 +159,15 @@ $(function() {
   };
 
   document.getElementById("login").onclick = button => {
-  	let uuid = document.getElementById("uuid").value;
+  	let data = {
+      uuid: document.getElementById("uuid").value,
+      ran: 5
+    };
     $.ajax({
       method: "POST",
       url: `${base}/login`,
-  		data: {
-        'uuid': uuid
-      },
+  		data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
       dataType: "json",
   	}).done(() => {
       document.getElementById('responding').classList.remove('is-invisible');
@@ -173,7 +175,7 @@ $(function() {
       document.getElementById('nurseLogin').classList.remove('is-active');
       setInterval(main, 5000);
     }).fail(() => {
-      alert("Invalid nurse UUID");
+      console.log("Invalid nurse UUID");
     });
   }
 });

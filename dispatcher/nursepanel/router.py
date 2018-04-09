@@ -1,9 +1,9 @@
 from dispatcher import SimpleRouter
 from dispatcher.nursepanel import (PanelHandler,
-                                 NurseVerificationHandler,
-                                 MyIssuesHandler,
-                                 ResponseHandler,
-                                 CloseIssueHandler)
+                                   NurseVerificationHandler,
+                                   MyIssuesHandler,
+                                   ResponseHandler,
+                                   CloseIssueHandler)
 
 import tornado
 

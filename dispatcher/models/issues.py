@@ -44,19 +44,20 @@ class Issue(Base):
     def __init__(self, patientdeviceid: String, requesttype: String,
                  priority: int):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.patientdevice = patientdeviceid
+        self.patientdevice = str(patientdeviceid).encode('ascii')
         self.requesttype = requesttype
         self.priority = priority
         self.status = IssueStates.PENDING
 
     def serialize(self, **kwargs):
+        id = str(self.id)[2:-1]
         return {
-            'id': self.id,
+            'id': id,
             'location': '',
-            'name': self.request_type.device_request_id,
-            'description': self.request_type.description,
-            'priority': self.discriminator,
-            'status': self.status,
+            'name': self.request.device_request_id,
+            'description': self.request.description,
+            'priority': self.priority,
+            'status': self.status.name,
         }
 
 
@@ -89,8 +90,9 @@ class Response(Base):
         return self.serialize()
 
     def serialize(self, **kwargs):
+        id = str(self.id)[2:-1]
         return {
-            'id': self.id,
+            'id': id,
             'issueid': self.issueid,
             'nursedevice': self.nursedevice,
             'first_issued': self.first_issued,
@@ -120,8 +122,9 @@ class RequestData(Base):
         return self.serialize()
 
     def serialize(self, **kwargs):
+        id = str(self.id)[2:-1]
         return {
-            'id': self.id,
+            'id': id,
             'issueid': self.issueid,
             'nursedevice': self.nursedevice,
             'patientdevice': self.patientdevice,

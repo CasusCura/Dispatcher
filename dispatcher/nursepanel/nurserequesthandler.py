@@ -6,6 +6,7 @@ from dispatcher.models import (NurseDevice,
                                Issue)
 import json
 
+
 class PanelHandler(RequestHandler, SessionMixin):
     def get(self):
         """Render the panel."""
@@ -52,6 +53,8 @@ class NurseVerificationHandler(RequestHandler, SessionMixin):
 class MyIssuesHandler(RequestHandler, SessionMixin):
     def get(self):
         uuid = self.get_argument('uuid', None)
+        print(self.request)
+        print('uuid', uuid)
         if uuid:
             with self.make_session() as session:
                 queued_issues = session.query(Response)\
