@@ -26,7 +26,7 @@ def send(action, device, issue, requesttype, data, url):
         print(req.text)
     elif action is Actions.STATUS:
         json = {
-            'uuid': device,
+            'device_id': device,
         }
         req = requests.get(url+'/patient/request', params=json)
         print(req.text)

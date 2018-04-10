@@ -1,7 +1,8 @@
 from dispatcher import SimpleRouter
 from dispatcher.patientapi import (PatientRequestHandler,
                                    PatientRequest1Handler,
-                                   PatientTestHandler)
+                                   PatientTestHandler,
+                                   PatientDeleteHandler)
 
 
 class PatientRouter(SimpleRouter):
@@ -10,6 +11,6 @@ class PatientRouter(SimpleRouter):
         self.routes = [
             (r'/patient/request', PatientRequestHandler),
             (r'/patient/request1', PatientRequest1Handler),
-            #(r'/patient/request/delete', PatientDeleteHandler),
+            (r'/patient/request/cancel', PatientDeleteHandler),
             (r'/patient/test', PatientTestHandler),
         ]

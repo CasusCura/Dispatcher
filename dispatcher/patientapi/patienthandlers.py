@@ -19,7 +19,8 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
         """Returns information for the current issue associated with this
         device."""
         # TODO: Validate uuid
-        uuid = self.get_argument('uuid')
+        uuid = self.get_argument('device_id')
+        uuid = uuid.replace('-', '')
         print(uuid)
         ret = self._get(uuid)
         if ret['issue']:
@@ -35,6 +36,7 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
         with self.make_session() as session:
             issue = session.query(Issue)\
                 .filter(Issue.patientdevice == uuid.encode())\
+                .order_by(Issue.first_issued.desc())\
                 .first()
             if issue:
                 return {
@@ -107,7 +109,7 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
             if issue:
                 return {
                     'status': 'OK',
-                    'issueid': str(issue.id)[2:-1],
+                    'issue_id': str(issue.id)[2:-1],
                     'code': 200,
                 }
             else:
@@ -155,7 +157,7 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
 
     def delete(self):
         """Cancels the active issue for this device."""
-        uuid = self.get_argument('uuid')
+        uuid = self.get_argument('device_id')
         with self.make_session() as session:
             q_issue = session.query(Issue)\
                 .filter(Issue.patientdevice == uuid.encode(),
@@ -233,9 +235,38 @@ class PatientRequest1Handler(RequestHandler, SessionMixin):
                                               json.load(request_data))
                     session.add(requestdata)
                 if issue:
-                    return {'status': 'OK', 'issueid': str(issue.id)[2:-1],'code': 200 }
+                    return {'status': 'OK', 'issue_id': str(issue.id)[2:-1],'code': 200 }
                 else:
                     return {'status': 'BAD', 'error': 'nothing found', 'code': 400}
+
+
+class PatientDeleteHandler(RequestHandler, SessionMixin):
+    def post(self):
+        """Cancels the active issue for this device."""
+        print(self.request.body)
+        data = json.loads(self.request.body)
+        print(data)
+        uuid = data.pop('device_id', None)
+        issue_id = data.pop('issue_id', None)
+        print(uuid)
+        with self.make_session() as session:
+            q_issue = session.query(Issue)\
+                .filter(Issue.patientdevice == uuid.encode(),
+                        or_(Issue.status == IssueStates.QUEUED,
+                            Issue.status == IssueStates.PENDING))
+
+            if len(q_issue.all()) != 1:
+                self.set_status(400)
+                self.write(json.dumps({'status': 'DENIED', }))
+                self.finish()
+                return
+            issue = q_issue.first()
+            issue.status = IssueStates.CANCELLED
+            self.set_status(200)
+            self.write(json.dumps({'status': 'OK', }))
+        self.finish()
+        return
+
 
 
 class PatientTestHandler(RequestHandler, SessionMixin):
