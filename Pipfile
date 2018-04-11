@@ -10,7 +10,8 @@ name = "pypi"
 tornado = "*"
 sqlalchemy = "*"
 tornado-sqlalchemy = "*"
-pytest = "*"
+nose = "*"
+testnado = "*"
 
 
 [dev-packages]
