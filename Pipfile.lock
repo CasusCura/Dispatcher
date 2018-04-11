@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d61c2d62fc8f1e3a451eec398d12e81b5d46161bf5996b4031375fbf01e8b427"
+            "sha256": "5afba913b6934b75a555520ad85cc12530f0f71ff67154393c56bb9b41081acb"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -29,32 +29,34 @@
         ]
     },
     "default": {
-        "attrs": {
+        "mock": {
             "hashes": [
-                "sha256:a17a9573a6f475c99b551c0e0a812707ddda1ec9653bed04c13841404ed6f450",
-                "sha256:1c7960ccfd6a005cd9f7ba884e6316b5e430a3f1a6c37c5f87d8b43f83b54ec9"
+                "sha256:5ce3c71c5545b472da17b72268978914d0252980348636840bd34a00b5cc96c1",
+                "sha256:b158b6df76edd239b8208d481dc46b6afd45a846b7812ff0ce58971cf5bc8bba"
             ],
-            "version": "==17.4.0"
+            "version": "==2.0.0"
         },
-        "pluggy": {
+        "nose": {
             "hashes": [
-                "sha256:7f8ae7f5bdf75671a718d2daf0a64b7885f74510bcd98b1a0bb420eb9a9d0cff"
+                "sha256:dadcddc0aefbf99eea214e0f1232b94f2fa9bd98fa8353711dacb112bfcbbb2a",
+                "sha256:9ff7c6cc443f8c51994b34a667bbcf45afd6d945be7477b52e97516fd17c53ac",
+                "sha256:f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98"
             ],
-            "version": "==0.6.0"
+            "version": "==1.3.7"
         },
-        "py": {
+        "pbr": {
             "hashes": [
-                "sha256:8cca5c229d225f8c1e3085be4fcf306090b00850fefad892f9d96c7b6e2f310f",
-                "sha256:ca18943e28235417756316bfada6cd96b23ce60dd532642690dcfdaba988a76d"
+                "sha256:4e8a0ed6a8705a26768f4c3da26026013b157821fe5f95881599556ea9d91c19",
+                "sha256:dae4aaa78eafcad10ce2581fc34d694faa616727837fd8e55c1a00951ad6744f"
             ],
-            "version": "==1.5.2"
+            "version": "==4.0.2"
         },
-        "pytest": {
+        "selenium": {
             "hashes": [
-                "sha256:062027955bccbc04d2fcd5d79690947e018ba31abe4c90b2c6721abec734261b",
-                "sha256:117bad36c1a787e1a8a659df35de53ba05f9f3398fb9e4ac17e80ad5903eb8c5"
+                "sha256:2b6f018e55f50e9c67a67caec2f73f806f72c162fb38cf3ea79e0a8f6506bf56",
+                "sha256:5841fb30c3965866220c34d16de8e3d091e2833fcac385160a63db0c3522a297"
             ],
-            "version": "==3.4.2"
+            "version": "==3.11.0"
         },
         "six": {
             "hashes": [
@@ -65,26 +67,32 @@
         },
         "sqlalchemy": {
             "hashes": [
-                "sha256:249000654107a420a40200f1e0b555a79dfd4eff235b2ff60bc77714bd045f2d"
+                "sha256:7cb00cc9b9f92ef8b4391c8a2051f81eeafefe32d63c6b395fd51401e9a39edb"
             ],
-            "version": "==1.2.5"
+            "version": "==1.2.6"
+        },
+        "testnado": {
+            "hashes": [
+                "sha256:b225b0bda94ed6d6fbaf70ec19a11aef86eed4b13152487ddb095b80142ab475"
+            ],
+            "version": "==0.4.1"
         },
         "tornado": {
             "hashes": [
-                "sha256:54a568429fb77529622a4607c66f9144aa980bd4fe2326206672707eba6951fc",
-                "sha256:f112ae0b50d2080995afab36aca4fcd93af1fa2e7185b15d854b0d6b2578dce4",
-                "sha256:6b56415667b1ad4f222486baa7118d5445310fd9b99a2263e029bc63df6e2e80",
-                "sha256:4b6a623a28307c5d5d64b34ed7c84f2bfcc6848fd71546bb8bc03dd82b71ad04",
-                "sha256:62f754562c61ea94b00d61727202105068bc2760f076cc34d2da1a57041731aa"
+                "sha256:88ce0282cce70df9045e515f578c78f1ebc35dcabe1d70f800c3583ebda7f5f5",
+                "sha256:ba9fbb249ac5390bff8a1d6aa4b844fd400701069bda7d2e380dfe2217895101",
+                "sha256:408d129e9d13d3c55aa73f8084aa97d5f90ed84132e38d6932e63a67d5bec563",
+                "sha256:c050089173c2e9272244bccfb6a8615fb9e53b79420a5551acfa76094ecc3111",
+                "sha256:1b83d5c10550f2653380b4c77331d6f8850f287c4f67d7ce1e1c639d9222fbc7"
             ],
-            "version": "==5.0"
+            "version": "==5.0.2"
         },
         "tornado-sqlalchemy": {
             "hashes": [
-                "sha256:04852f62a8bf4e63273e6c870174ee7a42059fa4a15da82e096a8f6cbd186e8a",
-                "sha256:25e5b4cec479cbb083cc14f04895db7609a58fc2c9a85c3e3089e15429864158"
+                "sha256:b1c829350f322a94fc3174dc3cc6e2734b68dc84f4fbff869f4de789cbe3acfd",
+                "sha256:042ad912f53ba385feeec3e79254db463d349dc820d945cbe45d4ea8aed9432a"
             ],
-            "version": "==0.3.3"
+            "version": "==0.4.1"
         }
     },
     "develop": {}
