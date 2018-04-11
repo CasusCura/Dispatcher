@@ -86,11 +86,9 @@ class PatientRequestHandler(RequestHandler, SessionMixin):
             device = session.query(Device)\
                 .filter(Device.id == device_id.encode())\
                 .first()
-            print(device)
             request_type = session.query(RequestType)\
                 .filter(RequestType.devicetype == device.devicetype)\
                 .all()
-            print([t.serialize() for t in request_type])
         # Handle invalid rid
             if len(request_type) != 1:
                 return {

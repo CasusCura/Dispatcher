@@ -165,12 +165,12 @@ class DevicesHandler(RequestHandler, SessionMixin):
                 baked_query = session.query(PatientDevice)
             else:
                 baked_query = session.query(Device)
-            if status and status is not 'ALL':
-                devices = baked_query\
-                    .filter(Device.status == status)\
-                    .all()
-            else:
-                devices = baked_query.all()
+            # if status and status is not 'ALL':
+            #     devices = baked_query\
+            #         .filter(Device.status == status)\
+            #         .all()
+            # else:
+            devices = baked_query.all()
             print(devices)
             if len(devices) is 0:
                 device_json = []

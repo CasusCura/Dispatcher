@@ -12,3 +12,4 @@ from dispatcher.models.devices import (Device,
                                        DeviceType,
                                        NurseDeviceType,
                                        PatientDeviceType)
+from dispatcher.models.mixins import ModelCreationMixin

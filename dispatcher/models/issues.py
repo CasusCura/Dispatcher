@@ -44,7 +44,7 @@ class Issue(Base):
     def __init__(self, patientdeviceid: String, requesttype: String,
                  priority: int):
         self.id = str(uuid.uuid4().hex).encode('ascii')
-        self.patientdevice = str(patientdeviceid).encode('ascii')
+        self.patientdevice = patientdeviceid
         self.requesttype = requesttype
         self.priority = priority
         self.status = IssueStates.PENDING
@@ -126,7 +126,6 @@ class RequestData(Base):
         return {
             'id': id,
             'issueid': self.issueid,
-            'nursedevice': self.nursedevice,
             'patientdevice': self.patientdevice,
             'timestamp': self.timestamp,
             'data': self.data

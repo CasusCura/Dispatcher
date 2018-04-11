@@ -69,11 +69,11 @@ class TestModels(unittest.TestCase):
         # Testing assertion
         sess = factory.make_session()
         t = sess.query(NurseDeviceType)\
-            .filter(NurseDeviceType.name == 'testdev')
-        print([n.name for n in t.all()])
+            .filter(NurseDeviceType.product_name == 'testdev')
+        print([n.product_name for n in t.all()])
         # Clean up
         t = sess.query(NurseDeviceType)\
-            .filter(NurseDeviceType.name == 'testdev')
+            .filter(NurseDeviceType.product_name == 'testdev')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
         sess.close()
@@ -85,7 +85,7 @@ class TestModels(unittest.TestCase):
         newnursedevt = NurseDeviceType('testdev', 'used to testing the code')
         sess.add(newnursedevt)
         # create the nurse dev instance
-        nursedev = NurseDevice(newnursedevt.id, '3rd floor')
+        nursedev = NurseDevice(newnursedevt.id, '3rd floor', 'N1')
         sess.add(nursedev)
         sess.commit()
         sess.close()
@@ -94,8 +94,8 @@ class TestModels(unittest.TestCase):
         sess = factory.make_session()
         # test relationship from type
         t = sess.query(NurseDeviceType)\
-            .filter(NurseDeviceType.name == 'testdev')
-        print([n.name for n in t.all()])
+            .filter(NurseDeviceType.product_name == 'testdev')
+        print([n.product_name for n in t.all()])
         print([
             [(nd.id, nd.floor) for nd in ndevt.devices]
             for ndevt in t.all()]
@@ -124,13 +124,13 @@ class TestModels(unittest.TestCase):
         # Testing assertion
         sess = factory.make_session()
         t = sess.query(PatientDeviceType)\
-            .filter(PatientDeviceType.name == 'testpdev')
-        print([n.name for n in t.all()])
+            .filter(PatientDeviceType.product_name == 'testpdev')
+        print([n.product_name for n in t.all()])
         sess.close()
         # Clean up
         sess = factory.make_session()
         t = sess.query(PatientDeviceType)\
-            .filter(PatientDeviceType.name == 'testpdev')
+            .filter(PatientDeviceType.product_name == 'testpdev')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
         sess.close()
@@ -144,15 +144,11 @@ class TestModels(unittest.TestCase):
         sess.add(newpatientdevt)
         # Create new requests for this new device
         pdid = newpatientdevt.id
-        id = 0
-        newpreq1 = RequestType(1,
-                               'testone',
+        newpreq1 = RequestType('testone',
                                'used to testing the code',
                                pdid,
                                1)
-        id += 1
-        newpreq2 = RequestType(2,
-                               'testtwo',
+        newpreq2 = RequestType('testtwo',
                                'used to testing the code',
                                pdid,
                                2)
@@ -165,21 +161,21 @@ class TestModels(unittest.TestCase):
         # Test relationship
         sess = factory.make_session()
         t = sess.query(PatientDeviceType)\
-            .filter(PatientDeviceType.name == 'testpdev')
+            .filter(PatientDeviceType.product_name == 'testpdev')
         pds = t.all()
-        print([[rt.name for rt in pd.requesttypes] for pd in pds])
+        print([[rt.device_request_id for rt in pd.requesttypes] for pd in pds])
         # test look up based on device
         testp = pds[0]
         r = sess.query(RequestType).filter(PatientDeviceType.id == testp.id)
-        print([rt.name for rt in r])
+        print([rt.device_request_id for rt in r])
         # test look up based on device type and device request id
         testp = pds[0]
         r = sess.query(RequestType)\
             .filter(PatientDeviceType.id == testp.id,
-                    RequestType.device_request_id == 2)
-        print([rt.name for rt in r])
+                    RequestType.device_request_id == 'testtwo')
+        print([rt.device_request_id for rt in r])
         # Clean up
-        t = sess.query(PatientDeviceType).filter(PatientDeviceType.name ==
+        t = sess.query(PatientDeviceType).filter(PatientDeviceType.product_name ==
                                                  'testpdev')
         print([[sess.delete(rt) for rt in dt.requesttypes] for dt in t])
         print([sess.delete(n) for n in t.all()])
@@ -194,7 +190,7 @@ class TestModels(unittest.TestCase):
                                            'used to testing the code')
         sess.add(newpatientdevt)
         # Create patient device
-        pdev = PatientDevice(newpatientdevt.id, 'room:501')
+        pdev = PatientDevice(newpatientdevt.id, 'room:501', 'P1')
         sess.add(pdev)
         sess.commit()
         sess.close()
@@ -203,8 +199,8 @@ class TestModels(unittest.TestCase):
         sess = factory.make_session()
         # test relationship from type
         t = sess.query(PatientDeviceType)\
-            .filter(PatientDeviceType.name == 'testptdev')
-        print([pdt.name for pdt in t.all()])
+            .filter(PatientDeviceType.product_name == 'testptdev')
+        print([pdt.product_name for pdt in t.all()])
         pdevt = t.first()
         print([(pd.id, pd.location) for pd in pdevt.devices])
         # test retrival by location
@@ -216,7 +212,7 @@ class TestModels(unittest.TestCase):
             .filter(PatientDevice.location == 'room:501')
         print([sess.delete(pd) for pd in t.all()])
         t = sess.query(PatientDeviceType)\
-            .filter(PatientDeviceType.name == 'testptdev')
+            .filter(PatientDeviceType.product_name == 'testptdev')
         print([sess.delete(n) for n in t.all()])
         sess.commit()
         sess.close()
@@ -230,22 +226,18 @@ class TestModels(unittest.TestCase):
         sess.add(newpatientdevt)
         # Create new requests for this new device
         pdid = newpatientdevt.id
-        id = 0
-        newpreq1 = RequestType(1,
-                               'testone',
+        newpreq1 = RequestType('TEST1',
                                'used to testing the code',
                                pdid,
                                0)
-        id += 1
-        newpreq2 = RequestType(2,
-                               'testtwo',
+        newpreq2 = RequestType('TEST2',
                                'used to testing the code',
                                pdid,
                                1)
         sess.add(newpreq1)
         sess.add(newpreq2)
         # Create patient device
-        pdev = PatientDevice(newpatientdevt.id, 'room:501')
+        pdev = PatientDevice(newpatientdevt.id, 'room:501', 'T1')
         sess.add(pdev)
         # Create Issue
         issue = Issue(pdev.id, newpreq1.id, newpreq1.priority)
@@ -257,10 +249,10 @@ class TestModels(unittest.TestCase):
         sess = factory.make_session()
         # test retrieval of issue
         t = sess.query(Issue).all()
-        print([(i.request.name, i.first_issued) for i in t])
+        print([(i.request.device_request_id, i.first_issued) for i in t])
         # test retrieval of issue location
-        print([(i.request.name, i.device.location) for i in t])
-        print([(i.request.name, i.status) for i in t])
+        print([(i.request.device_request_id, i.device) for i in t])
+        print([(i.request.device_request_id, i.status) for i in t])
         # Clean up
         t = sess.query(Issue)
         print([sess.delete(pd) for pd in t.all()])
@@ -280,33 +272,30 @@ class TestModels(unittest.TestCase):
         sess.add(newpatientdevt)
         # Create new requests for this new device
         pdid = newpatientdevt.id
-        id = 0
-        newpreq1 = RequestType('ONE',
-                               'testone',
+        newpreq1 = RequestType('TEST1',
                                'used to testing the code',
                                pdid,
                                0)
-        id += 1
-        newpreq2 = RequestType('TWO',
-                               'testtwo',
+        newpreq2 = RequestType('TEST2',
                                'used to testing the code',
                                pdid,
                                1)
         sess.add(newpreq1)
         sess.add(newpreq2)
         # Create patient device
-        pdev = PatientDevice(newpatientdevt.id, 'room:501')
+        pdev = PatientDevice(newpatientdevt.id, 'room:501', 'P1')
         sess.add(pdev)
         # Create Issue
         issue = Issue(pdev.id, newpreq1.id, newpreq1.priority)
         sess.add(issue)
         # Create new nurse device type
-        nursedevt = NurseDeviceType('testdev', 'used to testing the code')
+        nursedevt = NurseDeviceType('testdev',
+                                    'used to testing the code')
         sess.add(nursedevt)
         # create the nurse dev instance
-        nursedev1 = NurseDevice(nursedevt.id, '3rd floor')
+        nursedev1 = NurseDevice(nursedevt.id, '3rd floor', 'N1')
         sess.add(nursedev1)
-        nursedev2 = NurseDevice(nursedevt.id, '3rd floor')
+        nursedev2 = NurseDevice(nursedevt.id, '3rd floor', 'N2')
         sess.add(nursedev2)
         # Create Responses
         response1 = Response(nursedev1.id, 4, issue.id, {'data': '', })
@@ -323,9 +312,9 @@ class TestModels(unittest.TestCase):
         print([(r.id, r.first_issued, r.last_eta) for r in t])
         # retrieval of issue
         t = sess.query(Issue).all()
-        print([(i.request.name, i.first_issued) for i in t])
+        print([(i.request.device_request_id, i.first_issued) for i in t])
         print([
-                [(i.request.name, r.first_issued) for r in i.responses]
+                [(i.request.device_request_id, r.first_issued) for r in i.responses]
                 for i in t])
 
         # Clean up
@@ -353,22 +342,18 @@ class TestModels(unittest.TestCase):
         sess.add(newpatientdevt)
         # Create new requests for this new device
         pdid = newpatientdevt.id
-        id = 0
-        newpreq1 = RequestType(1,
+        newpreq1 = RequestType('TEST1',
                                'testone',
-                               'used to testing the code',
                                pdid,
                                0)
-        id += 1
-        newpreq2 = RequestType(2,
-                               'testtwo',
+        newpreq2 = RequestType('TEST2',
                                'used to testing the code',
                                pdid,
                                1)
         sess.add(newpreq1)
         sess.add(newpreq2)
         # Create patient device
-        pdev = PatientDevice(newpatientdevt.id, 'room:501')
+        pdev = PatientDevice(newpatientdevt.id, 'room:501', 'P1')
         sess.add(pdev)
         # Create Issue
         issue = Issue(pdev.id, newpreq1.id, newpreq1.priority)
@@ -390,7 +375,7 @@ class TestModels(unittest.TestCase):
         print([(r.id, r.timestamp, r.data) for r in t.all()])
         # retrieval of issue
         t = sess.query(Issue).all()
-        print([[(i.request.name, r.data) for r in i.data]for i in t])
+        print([[(i.request.device_request_id, r.data) for r in i.data]for i in t])
 
         # Clean up
         t = sess.query(RequestData)
